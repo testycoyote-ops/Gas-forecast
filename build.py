@@ -12,10 +12,13 @@ from pathlib import Path
 
 import requests
 
+import model
+
 ROOT     = Path(__file__).parent
 HISTORY  = ROOT / "history.csv"
 TEMPLATE = ROOT / "template.html"
 OUTPUT   = ROOT / "index.html"
+SNAPOUT  = ROOT / "snapshot.json"
 
 AAA_URL = "https://gasprices.aaa.com/"
 EIA_URL = "https://www.eia.gov/todayinenergy/prices.php"
@@ -100,6 +103,41 @@ def parse_aaa(raw: str) -> dict:
             "grades": grades if len(grades) == 4 else [out["today"], None, None, None]}
 
 
+MONTHS = ("January February March April May June July August "
+          "September October November December").split()
+
+
+def resolve_date(raw: str, now: dt.datetime | None = None) -> dt.date:
+    """Which calendar day does AAA's "Current Avg" actually belong to?
+
+    Do NOT just take the current Eastern date. AAA publishes overnight, so between
+    midnight ET and roughly 5am ET the page still shows *yesterday's* figure while
+    the ET clock has already rolled over -- taking the clock date there silently
+    files yesterday's price under today and corrupts the history.
+
+    So: trust the date AAA prints on its own page when it is present and sane, and
+    fall back to a clock rule that only advances the date after 6am ET.
+    """
+    now = now or dt.datetime.now(dt.timezone.utc)
+    et = now.astimezone(dt.timezone(dt.timedelta(hours=-4)))
+
+    text = to_text(raw)
+    m = re.search(r"\b(" + "|".join(MONTHS) + r")\s+(\d{1,2}),?\s+(20\d{2})\b", text)
+    if m:
+        try:
+            found = dt.date(int(m.group(3)), MONTHS.index(m.group(1)) + 1, int(m.group(2)))
+            if abs((found - et.date()).days) <= 2:      # sane relative to now
+                log(f"date from AAA page: {found}")
+                return found
+            log(f"ignoring implausible page date {found} (ET today is {et.date()})")
+        except ValueError:
+            pass
+
+    d = et.date() if et.hour >= 6 else et.date() - dt.timedelta(days=1)
+    log(f"no usable page date; using clock rule -> {d} (ET now {et:%Y-%m-%d %H:%M})")
+    return d
+
+
 def parse_eia(raw: str) -> dict:
     """Wholesale context. Best-effort -- never fatal, it is display-only."""
     text = to_text(raw)
@@ -150,7 +188,8 @@ def validate(price: float, prev: float | None, label: str) -> None:
 # ----------------------------------------------------------------------------- build
 def main() -> None:
     log("fetching AAA…")
-    aaa = parse_aaa(get(AAA_URL))
+    raw_aaa = get(AAA_URL)
+    aaa = parse_aaa(raw_aaa)
     p = aaa["prices"]
 
     try:
@@ -160,9 +199,7 @@ def main() -> None:
         eia = {}
         log(f"EIA fetch failed (non-fatal): {e}")
 
-    # AAA publishes overnight, so "Current Avg" is dated today in US Eastern terms.
-    today = dt.datetime.now(dt.timezone.utc).astimezone(
-        dt.timezone(dt.timedelta(hours=-4))).date()
+    today = resolve_date(raw_aaa)
     yday = today - dt.timedelta(days=1)
 
     hist = read_history()
@@ -215,6 +252,12 @@ def main() -> None:
     OUTPUT.write_text(out)
     log(f"wrote {OUTPUT.name}: {len(series)} history points, "
         f"today ${p['today']}, {len(out):,} bytes")
+
+    # snapshot.json is the contract between this script and flow.py: it carries the
+    # forecast so the edge page never re-derives (and never disagrees with) the model.
+    fc = model.forecast(p["today"], p["yesterday"], p.get("weekAgo"))
+    SNAPOUT.write_text(json.dumps({**snapshot, "forecast": fc, "built": built}, indent=1))
+    log(f"wrote {SNAPOUT.name}: forecast ${fc['pred_price']:.4f} ± {fc['sigma']}")
 
 
 if __name__ == "__main__":

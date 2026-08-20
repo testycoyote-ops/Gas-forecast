@@ -195,14 +195,61 @@ precision, not the model's skill, and a perfect forecaster would score the same.
 
 ---
 
+# Part 4 — The Market Flow page (`edge.html`)
+
+A second page comparing the model against real money, at
+`https://YOUR-USERNAME.github.io/gas-forecast/edge.html`. Rebuilt every 30 minutes by
+`.github/workflows/flow.yml`.
+
+### What "whale tracking" can and cannot mean here
+
+**Kalshi publishes no trader identity.** Not an account, not a wallet, not a pseudonym —
+the public trade feed carries only size, side, price and time. So you cannot follow a
+named trader on this market, and any product claiming otherwise is guessing. Polymarket
+*does* expose wallet-level data (it is on-chain), but it lists no gasoline markets at all.
+
+What you get instead:
+
+1. **Model vs. market at every strike.** Kalshi's daily ladder (`KXAAAGASD`) is a full
+   implied probability distribution. Overlaying the model's on top of it shows exactly
+   where the two disagree, and by how much.
+2. **Large prints.** Every trade above the size threshold, plus every block trade. Whale
+   footprints without the whale's name.
+3. **CFTC concentration.** The genuine big-money dataset: the net position of the largest
+   4 and largest 8 reportable traders in RBOB Gasoline and WTI, as a share of open
+   interest, plus hedge-fund ("managed money") net length and its weekly change. Weekly,
+   official, free.
+4. **A scoreboard.** Every strike is logged with both probabilities to `market_log.csv`
+   and scored with a Brier score once AAA publishes.
+
+### Read the edge honestly
+
+The first live comparison had the market pricing "above $4.1050" at 25¢ while the model
+said 49% — a 24-point gap. That is **not** free money. It almost certainly means the
+model's σ ($0.0103) is too wide: the market's implied distribution is far tighter than
+the model's, and the market has real money behind it every single day.
+
+This is exactly what the scoreboard is for. If after a few months the model's Brier score
+cannot beat the market's, the model is not finding an edge no matter how good the
+backtest looked. The page says so on its face rather than flattering the model.
+
+**None of this is investment advice, and the tool places no trades.**
+
+---
+
 ## Files
 
 | File | What it is |
 |---|---|
 | `index.html` | The published page. Generated — don't edit by hand. |
 | `template.html` | The real source. Edit this. |
-| `build.py` | Fetches, validates, updates history, renders `index.html`. |
+| `build.py` | Fetches, validates, updates history, renders `index.html` + `snapshot.json`. |
+| `model.py` | The forecast equation, shared by both pages so they can never disagree. |
+| `flow.py` | Fetches Kalshi + CFTC, scores the model against the market, renders `edge.html`. |
+| `edge_template.html` | Source for the flow page. Edit this, not `edge.html`. |
+| `market_log.csv` | Every logged strike with model and market probabilities, settled once AAA publishes. |
 | `test_build.py` | Offline tests for the parser and its guards. `python test_build.py` |
+| `test_flow.py` | Offline tests for the Kalshi/CFTC parsing and the scoreboard. |
 | `history.csv` | The accumulating daily AAA series. The asset that makes this better over time. |
 
 ## Data sources

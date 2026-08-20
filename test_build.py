@@ -101,5 +101,19 @@ check("history seed is sorted & unique", (lambda r: [x["date"] for x in r] ==
       sorted({x["date"] for x in r}))(build.read_history()))
 check("history seed non-empty", len(build.read_history()) >= 19, f"{len(build.read_history())} rows")
 
+# --------------------------------------------------------------- date resolution
+print("\nDate resolution (the midnight-ET trap)")
+import datetime as _dt
+_UTC=_dt.timezone.utc
+_WITH="<p>Today's AAA National Average as of August 19, 2026</p><p>Current Avg. $4.086 Yesterday Avg. $4.065</p>"
+_NO="<p>Current Avg. $4.086 Yesterday Avg. $4.065</p>"
+for _n,_pg,_now,_want in [
+  ("page date wins at 00:30 ET", _WITH, _dt.datetime(2026,8,20,4,30,tzinfo=_UTC), _dt.date(2026,8,19)),
+  ("no page date at 00:30 ET falls back a day", _NO, _dt.datetime(2026,8,20,4,30,tzinfo=_UTC), _dt.date(2026,8,19)),
+  ("no page date at 07:20 ET is today", _NO, _dt.datetime(2026,8,20,11,20,tzinfo=_UTC), _dt.date(2026,8,20)),
+  ("implausible page date ignored", "<p>January 3, 2026</p>"+_NO, _dt.datetime(2026,8,20,16,20,tzinfo=_UTC), _dt.date(2026,8,20)),
+]:
+    check(_n, build.resolve_date(_pg,_now)==_want, str(build.resolve_date(_pg,_now)))
+
 print("\n" + (f"{len(FAILS)} FAILURE(S): {FAILS}" if FAILS else "All checks passed."))
 sys.exit(1 if FAILS else 0)

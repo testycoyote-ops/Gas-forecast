@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market Flow &amp; Edge · Gas Forecast</title>
+<meta name="description" content="Kalshi's implied probabilities for tomorrow's AAA gas price versus the model's, plus large-trade flow and CFTC whale concentration.">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gas Edge">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23eb6834'/%3E%3Ctext x='16' y='24' font-size='20' font-family='system-ui,sans-serif' font-weight='600' fill='white' text-anchor='middle'%3E%25%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    color-scheme: light;
+    --plane:#f9f9f7; --surface-1:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --hair:#e9e8e2;
+    --model:#2a78d6; --market:#eb6834;
+    --pos:#2a78d6; --neg:#d03b3b; --warning:#fab219; --good:#0ca30c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --plane:#0d0d0d; --surface-1:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --hair:#242422;
+      --model:#3987e5; --market:#d95926; --pos:#3987e5; --neg:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface-1:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --hair:#242422;
+    --model:#3987e5; --market:#d95926; --pos:#3987e5; --neg:#e66767;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--plane);color:var(--ink);
+    font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 56px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  h1{font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin-top:3px}
+  .hbtns{display:flex;gap:8px}
+  .btn{background:none;border:1px solid var(--axis);color:var(--ink-2);border-radius:7px;
+    padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block}
+  .btn:hover{border-color:var(--muted)}
+  .card{background:var(--surface-1);border:1px solid var(--hair);border-radius:14px;padding:24px;margin-bottom:16px}
+  h2{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);margin:0 0 4px}
+  .h2sub{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .banner{background:var(--surface-1);border:1px solid var(--warning);border-left-width:3px;
+    border-radius:11px;padding:12px 15px;margin-bottom:16px;font-size:13px;color:var(--ink-2)}
+  .banner b{color:var(--ink)}
+
+  .hero{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-end}
+  .hlabel{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .hnum{font-size:52px;line-height:1;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .hsub{font-size:14px;color:var(--ink-2);margin-top:10px}
+  .vs{display:flex;gap:26px;margin-top:6px}
+  .vsi .vl{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .vsi .vv{font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink-2);margin:0 0 10px;flex-wrap:wrap}
+  .lg{display:flex;align-items:center;gap:7px}
+  .sw{width:16px;height:3px;border-radius:2px;flex:none}
+  figure{margin:0;position:relative}
+  svg{display:block;width:100%;height:auto;touch-action:none}
+  .gridline{stroke:var(--grid);stroke-width:1}
+  .baseline{stroke:var(--axis);stroke-width:1}
+  .axlabel{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+  .tt{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--surface-1);
+    border:1px solid var(--axis);border-radius:9px;padding:9px 11px;font-size:12.5px;color:var(--ink);
+    box-shadow:0 6px 20px rgba(0,0,0,.13);white-space:nowrap;z-index:5}
+  .ttd{color:var(--muted);font-size:11.5px;margin-bottom:4px}
+  .ttr{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:7px 9px;border-bottom:1px solid var(--hair);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+  tbody tr:hover{background:var(--plane)}
+  .ebar{display:inline-block;height:7px;border-radius:2px;vertical-align:middle}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .tag{font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;padding:2px 6px;border-radius:4px;
+    border:1px solid var(--axis);color:var(--muted)}
+  .tag.block{border-color:var(--market);color:var(--market)}
+  .scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+    background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden}
+  .tile{background:var(--surface-1);padding:15px 16px}
+  .tlabel{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .tval{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .tnote{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .note{font-size:13px;color:var(--ink-2);line-height:1.6}
+  .note b{color:var(--ink)}
+  .caveat{border-left:2px solid var(--warning);padding-left:12px;font-size:13px;color:var(--ink-2);margin-top:14px;line-height:1.6}
+  .empty{color:var(--muted);font-size:13px;padding:10px 0}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.7}
+  footer a{color:var(--muted)}
+  @media (max-width:520px){ .hnum{font-size:42px} .wrap{padding:20px 14px 44px} .card{padding:18px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Market Flow &amp; Edge</h1>
+    <div class="sub">Kalshi daily gas markets · model vs. the money</div>
+  </div>
+  <div class="hbtns">
+    <a class="btn" href="./">← Forecast</a>
+    <button class="btn" id="tbtn">Dark</button>
+  </div>
+</header>
+
+<div id="banner"></div>
+
+<section class="card">
+  <div class="hero">
+    <div>
+      <div class="hlabel" id="edgeLabel">Biggest divergence</div>
+      <div class="hnum" id="edgeNum">—</div>
+      <div class="hsub" id="edgeSub"></div>
+    </div>
+    <div class="vs" id="vsBlock"></div>
+  </div>
+  <div class="caveat" id="edgeCaveat"></div>
+</section>
+
+<section class="card">
+  <h2>Model vs. market, every strike</h2>
+  <div class="h2sub" id="curveSub"></div>
+  <div class="legend">
+    <span class="lg"><span class="sw" style="background:var(--model)"></span>Model probability</span>
+    <span class="lg"><span class="sw" style="background:var(--market)"></span>Market implied (Kalshi)</span>
+  </div>
+  <figure>
+    <div class="tt" id="tt"></div>
+    <svg id="curve" viewBox="0 0 820 300" role="img" aria-label="Model probability versus Kalshi market-implied probability at each strike price."></svg>
+  </figure>
+  <div class="scroll">
+    <table id="ladder">
+      <thead><tr><th>Above</th><th>Market</th><th>Model</th><th>Edge</th><th></th><th>Volume</th><th>Open int.</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Large prints</h2>
+  <div class="h2sub" id="tapeSub"></div>
+  <div class="scroll"><table id="tape">
+    <thead><tr><th>Time (UTC)</th><th>Strike</th><th>Side</th><th>Size</th><th>Price</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <div class="caveat">
+    <b>These are anonymous.</b> Kalshi's public feed carries no account, wallet, or pseudonym —
+    only size, side, price and time. A large print is a whale's footprint, but there is no way
+    to tell whose, or to follow one across days. Anyone selling you a Kalshi "whale tracker"
+    that names traders is guessing.
+  </div>
+</section>
+
+<section class="card">
+  <h2>Whale concentration — CFTC</h2>
+  <div class="h2sub">The one place real big-money identity data exists: how much of the futures market the largest traders actually control.</div>
+  <div id="cftc"></div>
+</section>
+
+<section class="card">
+  <h2>Who's actually right?</h2>
+  <div class="h2sub">Brier scores on every logged strike once the AAA number lands. Lower is better.</div>
+  <div id="score"></div>
+</section>
+
+<footer>
+  Data: <a href="https://kalshi.com/">Kalshi</a> · <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm">CFTC Commitments of Traders</a> · <a href="https://gasprices.aaa.com/">AAA</a><br>
+  <span id="stamp"></span><br>
+  Decision support only. Not investment advice, and not a trading system.
+</footer>
+</div>
+
+<script>
+/*__FLOW_START__*/
+const FLOW = {"target": "2026-08-20", "live": true, "built": "Aug 20, 2026 at 04:06 UTC", "forecast": {"today": 4.086, "yesterday": 4.0654, "week_ago": 4.036, "chg_1d": 0.02059999999999995, "drift_7d": 0.007142857142857244, "pred_chg": 0.018862682857142828, "pred_price": 4.104862682857143, "sigma": 0.0103, "lo80": 4.091662202857143, "hi80": 4.118063162857143, "lo95": 4.084674682857143, "hi95": 4.125050682857143, "p_up": 0.9664742318718109}, "snapshot": {"asOf": "2026-08-19", "today": 4.086}, "rows": [{"ticker": "KXAAAGASD-26AUG20-4.0800", "strike": 4.08, "market_prob": 0.99, "model_prob": 0.9921075789452541, "edge": 0.0021075789452541516, "bid": null, "ask": null, "last": 0.99, "volume": 1383.0, "open_interest": 1374.0}, {"ticker": "KXAAAGASD-26AUG20-4.0850", "strike": 4.085, "market_prob": 0.99, "model_prob": 0.9730982866472013, "edge": -0.016901713352798664, "bid": null, "ask": null, "last": 0.99, "volume": 3159.0, "open_interest": 2268.0}, {"ticker": "KXAAAGASD-26AUG20-4.0900", "strike": 4.09, "market_prob": 0.99, "model_prob": 0.9254867949734478, "edge": -0.06451320502655222, "bid": null, "ask": null, "last": 0.99, "volume": 3940.0, "open_interest": 2935.0}, {"ticker": "KXAAAGASD-26AUG20-4.0950", "strike": 4.095, "market_prob": 0.99, "model_prob": 0.8308531273092091, "edge": -0.15914687269079086, "bid": null, "ask": null, "last": 0.99, "volume": 30791.0, "open_interest": 18944.0}, {"ticker": "KXAAAGASD-26AUG20-4.1000", "strike": 4.1, "market_prob": 0.98, "model_prob": 0.6815741251411949, "edge": -0.2984258748588051, "bid": null, "ask": null, "last": 0.98, "volume": 40323.0, "open_interest": 23750.0}, {"ticker": "KXAAAGASD-26AUG20-4.1050", "strike": 4.105, "market_prob": 0.25, "model_prob": 0.4946815542352676, "edge": 0.2446815542352676, "bid": null, "ask": null, "last": 0.25, "volume": 48295.0, "open_interest": 18353.0}, {"ticker": "KXAAAGASD-26AUG20-4.1100", "strike": 4.11, "market_prob": 0.02, "model_prob": 0.3089711860994395, "edge": 0.2889711860994395, "bid": null, "ask": null, "last": 0.02, "volume": 22529.0, "open_interest": 12176.0}, {"ticker": "KXAAAGASD-26AUG20-4.1150", "strike": 4.115, "market_prob": 0.01, "model_prob": 0.16250722928208372, "edge": 0.1525072292820837, "bid": null, "ask": null, "last": 0.01, "volume": 21219.0, "open_interest": 14507.0}, {"ticker": "KXAAAGASD-26AUG20-4.1200", "strike": 4.12, "market_prob": 0.01, "model_prob": 0.07082930965728007, "edge": 0.06082930965728007, "bid": null, "ask": null, "last": 0.01, "volume": 32077.0, "open_interest": 16594.0}, {"ticker": "KXAAAGASD-26AUG20-4.1250", "strike": 4.125, "market_prob": 0.01, "model_prob": 0.02528685352808835, "edge": 0.015286853528088349, "bid": null, "ask": null, "last": 0.01, "volume": 11305.0, "open_interest": 7108.0}], "best": {"ticker": "KXAAAGASD-26AUG20-4.1000", "strike": 4.1, "market_prob": 0.98, "model_prob": 0.6815741251411949, "edge": -0.2984258748588051, "bid": null, "ask": null, "last": 0.98, "volume": 40323.0, "open_interest": 23750.0}, "trades": [{"ticker": "KXAAAGASD-26AUG20-4.1050", "strike": 4.105, "count": 119.0, "yes_price": 0.37, "side": "yes", "block": false, "time": "2026-08-20T03:58:09.625453Z"}, {"ticker": "KXAAAGASD-26AUG20-4.1000", "strike": 4.1, "count": 640.0, "yes_price": 0.97, "side": "yes", "block": false, "time": "2026-08-20T03:40:11.000000Z"}, {"ticker": "KXAAAGASD-26AUG20-4.1050", "strike": 4.105, "count": 900.0, "yes_price": 0.19, "side": "yes", "block": true, "time": "2026-08-20T02:11:00.000000Z"}, {"ticker": "KXAAAGASD-26AUG20-4.1000", "strike": 4.1, "count": 75.0, "yes_price": 0.94, "side": "no", "block": false, "time": "2026-08-20T01:02:44.000000Z"}], "trade_threshold": 50.0, "n_trades_scanned": 7, "cftc": {"RBOB Gasoline": {"report_date": "2026-08-11", "contract": "GASOLINE RBOB", "open_interest": 318442.0, "mm_long": 92150.0, "mm_short": 41880.0, "mm_net": 50270.0, "mm_net_chg": 3570.0, "conc4_long": 18.6, "conc4_short": null, "conc8_long": 28.4, "conc8_short": null, "traders": 214.0}, "WTI Crude Oil": {"report_date": "2026-08-11", "contract": "CRUDE OIL, LIGHT SWEET-WTI", "open_interest": 1804221.0, "mm_long": 312400.0, "mm_short": 96110.0, "mm_net": 216290.0, "mm_net_chg": -10600.0, "conc4_long": 12.9, "conc4_short": null, "conc8_long": 20.1, "conc8_short": null, "traders": 612.0}}, "score": {"n": 0}};
+/*__FLOW_END__*/
+
+const $ = id=>document.getElementById(id);
+const pct = v=>(v*100).toFixed(0)+"%";
+const pct1 = v=>(v*100).toFixed(1)+"%";
+const cts = v=>(v*100).toFixed(0)+"¢";
+const usd = v=>"$"+v.toFixed(4);
+const pp  = v=>(v>=0?"+":"−")+Math.abs(v*100).toFixed(1)+"pp";
+const D = s=>{const[y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d));};
+const fmtLong = s=>D(s).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",timeZone:"UTC"});
+const hhmm = s=>s? s.slice(11,19) : "—";
+const num = n=>n==null?"—":n.toLocaleString("en-US",{maximumFractionDigits:0});
+
+const rows = (FLOW.rows||[]).filter(r=>r.market_prob!=null);
+
+/* ---------------- banner ---------------- */
+(function(){
+  const b=$("banner"); const bits=[];
+  if(!FLOW.target){ bits.push("<b>No Kalshi gas market found.</b> The daily series may be between sessions."); }
+  else if(!FLOW.live){ bits.push(`<b>Market closed.</b> Showing the final state of the ${fmtLong(FLOW.target)} session — Kalshi's daily gas markets settle at 11:59pm ET the night before.`); }
+  if(bits.length){ b.className="banner"; b.innerHTML=bits.join(" "); }
+})();
+
+/* ---------------- hero ---------------- */
+(function(){
+  const best=FLOW.best;
+  if(!best||best.market_prob==null){ $("edgeNum").textContent="—"; $("edgeSub").textContent="No priced strikes available."; return; }
+  const e=best.edge;
+  $("edgeLabel").textContent = `Biggest divergence · above $${best.strike.toFixed(4)}`;
+  $("edgeNum").innerHTML = `<span class="${e>=0?'pos':'neg'}">${pp(e)}</span>`;
+  $("edgeSub").innerHTML = e>=0
+    ? `The model thinks this is <b>more</b> likely than the market is pricing.`
+    : `The model thinks this is <b>less</b> likely than the market is pricing.`;
+  $("vsBlock").innerHTML =
+    `<div class="vsi"><div class="vl"><span class="dot" style="background:var(--model)"></span>Model</div><div class="vv">${pct1(best.model_prob)}</div></div>
+     <div class="vsi"><div class="vl"><span class="dot" style="background:var(--market)"></span>Market</div><div class="vv">${cts(best.market_prob)}</div></div>
+     <div class="vsi"><div class="vl">Forecast</div><div class="vv">$${FLOW.forecast.pred_price.toFixed(3)}</div></div>`;
+  $("edgeCaveat").innerHTML =
+    `<b>Read this before acting on it.</b> A large gap usually means the model's uncertainty band is wrong, `
+    + `not that the market is. The model's σ is $${FLOW.forecast.sigma} — estimated from a handful of daily observations — `
+    + `while the market prices this contract with real money every day. Until the scoreboard at the bottom of this page `
+    + `says otherwise, treat the market as the better-calibrated forecaster and the gap as a question, not a signal.`;
+  $("curveSub").textContent =
+    `Target: ${fmtLong(FLOW.target)}. Model centred on $${FLOW.forecast.pred_price.toFixed(4)} with σ $${FLOW.forecast.sigma}.`;
+})();
+
+/* ---------------- curve ---------------- */
+function drawCurve(){
+  const el=$("curve"); if(!rows.length){ el.style.display="none"; return; }
+  const narrow = window.innerWidth<620;
+  const W = narrow?400:820, H=300, MT=16, MB=36, ML=narrow?38:46, MR=narrow?16:22;
+  const FS = narrow?13:11;
+  const ks = rows.map(r=>r.strike);
+  const k0=Math.min(...ks), k1=Math.max(...ks);
+  const X = k=>ML+(k1===k0?0.5:(k-k0)/(k1-k0))*(W-ML-MR);
+  const Y = p=>MT+(1-p)*(H-MT-MB);
+  let s="";
+  [0,.25,.5,.75,1].forEach(p=>{
+    s+=`<line class="gridline" x1="${ML}" x2="${W-MR}" y1="${Y(p).toFixed(1)}" y2="${Y(p).toFixed(1)}"/>`;
+    s+=`<text class="axlabel" font-size="${FS}" x="${ML-8}" y="${(Y(p)+FS*0.34).toFixed(1)}" text-anchor="end">${p*100}%</text>`;
+  });
+  const nt = narrow?3:6, step=Math.max(1,Math.round(rows.length/nt));
+  rows.forEach((r,i)=>{ if(i%step===0||i===rows.length-1)
+    s+=`<text class="axlabel" font-size="${FS}" x="${X(r.strike).toFixed(1)}" y="${H-MB+FS+8}" text-anchor="middle">${r.strike.toFixed(3)}</text>`; });
+  s+=`<line class="baseline" x1="${ML}" x2="${W-MR}" y1="${H-MB}" y2="${H-MB}"/>`;
+  // shaded gap between the two curves
+  const up=rows.map(r=>`${X(r.strike).toFixed(1)},${Y(r.model_prob).toFixed(1)}`).join(" ");
+  const dn=rows.slice().reverse().map(r=>`${X(r.strike).toFixed(1)},${Y(r.market_prob).toFixed(1)}`).join(" ");
+  s+=`<polygon points="${up} ${dn}" fill="var(--model)" opacity="0.10"/>`;
+  const line=(key,color)=>`<polyline fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${rows.map(r=>X(r.strike).toFixed(1)+","+Y(r[key]).toFixed(1)).join(" ")}"/>`;
+  s+=line("model_prob","var(--model)")+line("market_prob","var(--market)");
+  const r0 = rows.length<=30 ? (narrow?3.4:3) : 0;
+  if(r0) rows.forEach(r=>{
+    s+=`<circle cx="${X(r.strike).toFixed(1)}" cy="${Y(r.model_prob).toFixed(1)}" r="${r0}" fill="var(--model)" stroke="var(--surface-1)" stroke-width="1.5"/>`;
+    s+=`<circle cx="${X(r.strike).toFixed(1)}" cy="${Y(r.market_prob).toFixed(1)}" r="${r0}" fill="var(--market)" stroke="var(--surface-1)" stroke-width="1.5"/>`;});
+  s+=`<rect id="hit" x="${ML}" y="${MT}" width="${W-ML-MR}" height="${H-MT-MB}" fill="transparent"/>`;
+  el.setAttribute("viewBox",`0 0 ${W} ${H}`); el.innerHTML=s;
+  el._X=X; el._Y=Y; el._W=W;
+}
+drawCurve();
+let rt; addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(drawCurve,150);});
+
+(function(){
+  const el=$("curve"), tt=$("tt");
+  if(!rows.length) return;
+  el.addEventListener("pointermove",e=>{
+    const bb=el.getBoundingClientRect(), sc=el._W/bb.width, px=(e.clientX-bb.left)*sc;
+    let best=rows[0],bd=1e9;
+    rows.forEach(r=>{const d=Math.abs(el._X(r.strike)-px); if(d<bd){bd=d;best=r;}});
+    tt.innerHTML=`<div class="ttd">Above $${best.strike.toFixed(4)}</div>
+      <div class="ttr"><span class="dot" style="background:var(--model)"></span>Model ${pct1(best.model_prob)}</div>
+      <div class="ttr"><span class="dot" style="background:var(--market)"></span>Market ${cts(best.market_prob)}</div>
+      <div class="ttd" style="margin:4px 0 0">Edge ${pp(best.edge)} · vol ${num(best.volume)}</div>`;
+    tt.style.opacity="1";
+    const lx=el._X(best.strike)/sc, ly=el._Y(Math.max(best.model_prob,best.market_prob))/sc;
+    tt.style.left=Math.min(Math.max(lx-tt.offsetWidth/2,0),bb.width-tt.offsetWidth)+"px";
+    tt.style.top=Math.max(ly-tt.offsetHeight-12,0)+"px";
+  });
+  el.addEventListener("pointerleave",()=>tt.style.opacity="0");
+})();
+
+/* ---------------- ladder table ---------------- */
+(function(){
+  const tb=$("ladder").querySelector("tbody");
+  if(!rows.length){ tb.innerHTML=`<tr><td colspan="7" class="empty">No priced strikes.</td></tr>`; return; }
+  const mx=Math.max(...rows.map(r=>Math.abs(r.edge)),0.01);
+  rows.slice().reverse().forEach(r=>{
+    const w=Math.abs(r.edge)/mx*54;
+    tb.insertAdjacentHTML("beforeend",
+      `<tr><td>$${r.strike.toFixed(4)}</td><td>${cts(r.market_prob)}</td><td>${pct1(r.model_prob)}</td>
+       <td class="${r.edge>=0?'pos':'neg'}">${pp(r.edge)}</td>
+       <td style="width:60px"><span class="ebar" style="width:${w.toFixed(1)}px;background:var(--${r.edge>=0?'pos':'neg'})"></span></td>
+       <td>${num(r.volume)}</td><td>${num(r.open_interest)}</td></tr>`);
+  });
+})();
+
+/* ---------------- tape ---------------- */
+(function(){
+  const tb=$("tape").querySelector("tbody"), t=FLOW.trades||[];
+  $("tapeSub").textContent = t.length
+    ? `${t.length} large prints out of ${num(FLOW.n_trades_scanned)} trades scanned — threshold ${Math.round(FLOW.trade_threshold)} contracts, plus every block trade.`
+    : `No trades above the size threshold yet this session.`;
+  if(!t.length){ tb.innerHTML=`<tr><td colspan="6" class="empty">Nothing large has printed yet.</td></tr>`; return; }
+  t.forEach(x=>{
+    const yes = (x.side||"").toLowerCase()==="yes";
+    tb.insertAdjacentHTML("beforeend",
+      `<tr><td>${hhmm(x.time)}</td><td>$${x.strike.toFixed(4)}</td>
+       <td class="${yes?'pos':'neg'}">${yes?"YES ▲":"NO ▼"}</td>
+       <td>${num(x.count)}</td><td>${x.yes_price!=null?cts(x.yes_price):"—"}</td>
+       <td>${x.block?'<span class="tag block">block</span>':''}</td></tr>`);
+  });
+})();
+
+/* ---------------- CFTC ---------------- */
+(function(){
+  const c=FLOW.cftc||{}, host=$("cftc"), keys=Object.keys(c);
+  if(!keys.length){ host.innerHTML=`<div class="empty">CFTC data unavailable on the last run — the weekly report may not have posted, or the query returned nothing. This panel is context only; the rest of the page is unaffected.</div>`; return; }
+  host.innerHTML = keys.map(k=>{
+    const d=c[k], net=d.mm_net;
+    return `<div style="margin-bottom:18px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:9px">${k}
+        <span style="color:var(--muted);font-weight:400"> · ${d.contract||""} · week of ${d.report_date}</span></div>
+      <div class="tiles">
+        <div class="tile"><div class="tlabel">Top 4 traders, net long</div><div class="tval">${d.conc4_long!=null?d.conc4_long.toFixed(1)+"%":"—"}</div><div class="tnote">of open interest</div></div>
+        <div class="tile"><div class="tlabel">Top 8 traders, net long</div><div class="tval">${d.conc8_long!=null?d.conc8_long.toFixed(1)+"%":"—"}</div><div class="tnote">of open interest</div></div>
+        <div class="tile"><div class="tlabel">Hedge fund net</div><div class="tval ${net>=0?'pos':'neg'}">${net!=null?(net>=0?"+":"−")+num(Math.abs(net)):"—"}</div>
+          <div class="tnote">${d.mm_net_chg!=null?(d.mm_net_chg>=0?"+":"−")+num(Math.abs(d.mm_net_chg))+" vs prior week":"managed money"}</div></div>
+        <div class="tile"><div class="tlabel">Reporting traders</div><div class="tval">${num(d.traders)}</div><div class="tnote">OI ${num(d.open_interest)}</div></div>
+      </div></div>`;
+  }).join("") + `<div class="note" style="margin-top:6px">Concentration is the share of total open interest held net-long by the largest 4 and 8 reportable traders. High and rising concentration means a few desks are carrying the position — the closest thing to a real whale reading that exists for gasoline. It moves weekly (Tuesday data, Friday release), so it's context for the week, not a signal for tomorrow.</div>`;
+})();
+
+/* ---------------- scoreboard ---------------- */
+(function(){
+  const s=FLOW.score||{n:0}, host=$("score");
+  if(!s.n){ host.innerHTML=`<div class="empty">Nothing settled yet. Every strike gets logged with both probabilities and scored once AAA publishes — after a couple of weeks this will show whether the model is adding anything the market hasn't already priced.</div>`; return; }
+  const better = s.brier_model<s.brier_market;
+  host.innerHTML=`<div class="tiles">
+    <div class="tile"><div class="tlabel">Model Brier</div><div class="tval ${better?'pos':''}">${s.brier_model.toFixed(4)}</div><div class="tnote">${s.n} strikes</div></div>
+    <div class="tile"><div class="tlabel">Market Brier</div><div class="tval ${better?'':'pos'}">${s.brier_market.toFixed(4)}</div><div class="tnote">${s.days} days</div></div>
+    <div class="tile"><div class="tlabel">Leader</div><div class="tval">${better?"Model":"Market"}</div>
+      <div class="tnote">by ${Math.abs(s.brier_model-s.brier_market).toFixed(4)}</div></div>
+  </div>
+  <div class="note" style="margin-top:12px">${s.days<14
+    ? `Only ${s.days} day${s.days>1?"s":""} of settled data — far too few to mean anything. Treat this as plumbing that works, not a result.`
+    : `Based on ${s.days} settled days. A model that cannot beat the market's Brier score over a few months is not finding an edge, however good its backtest looked.`}</div>`;
+})();
+
+$("stamp").textContent = "Rebuilt "+FLOW.built;
+
+/* ---------------- theme ---------------- */
+const btn=$("tbtn");
+function isDark(){const s=document.documentElement.dataset.theme;
+  return s? s==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;}
+function sync(){btn.textContent=isDark()?"Light":"Dark";}
+btn.onclick=()=>{document.documentElement.dataset.theme=isDark()?"light":"dark";sync();};
+sync();
+</script>
+</body>
+</html>
