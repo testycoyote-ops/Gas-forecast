@@ -1,7 +1,7 @@
 {
  "target": "2026-08-20",
  "live": false,
- "built": "Aug 20, 2026 at 04:13 UTC",
+ "built": "Aug 20, 2026 at 04:15 UTC",
  "forecast": {
   "today": 4.086,
   "yesterday": 4.0654,
@@ -244,19 +244,7 @@
    "liquid": false
   }
  ],
- "best": {
-  "ticker": "KXAAAGASD-26AUG20-4.1100",
-  "strike": 4.11,
-  "market_prob": 0.02,
-  "model_prob": 0.3089711860994395,
-  "edge": 0.2889711860994395,
-  "bid": null,
-  "ask": 1.0,
-  "last": 0.02,
-  "volume": 23628.1,
-  "open_interest": 12891.14,
-  "liquid": true
- },
+ "best": null,
  "trades": [
   {
    "ticker": "KXAAAGASD-26AUG20-4.0950",
