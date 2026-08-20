@@ -73,6 +73,8 @@ def cents(m: dict, *keys) -> float | None:
             f = float(v)
         except (TypeError, ValueError):
             continue
+        if f == 0.0:                  # an empty side, not a real 0c quote
+            continue
         if k.endswith("_dollars"):
             return f
         return f / 100.0 if f > 1.0 else f
@@ -260,7 +262,10 @@ def main() -> None:
             continue
         bid, ask = cents(m, "yes_bid_dollars", "yes_bid"), cents(m, "yes_ask_dollars", "yes_ask")
         last = cents(m, "last_price_dollars", "last_price")
-        mkt = (bid + ask) / 2 if (bid is not None and ask is not None and ask > bid) else last
+        # A settled or untended market shows an empty book: bid 0 / ask 1 midpoints to
+        # a meaningless 50c. Only trust the mid when the spread is actually tight.
+        wide = bid is None or ask is None or ask <= bid or (ask - bid) > 0.25
+        mkt = last if wide else (bid + ask) / 2
         mp = model.prob_above(k, mu, sigma)
         vol = float(m.get("volume_fp") or m.get("volume") or 0)
         rows.append({
@@ -303,9 +308,10 @@ def main() -> None:
         r["liquid"] = bool(r["volume"] >= max(25.0, 0.05 * vmax)
                            and 0.02 <= r["market_prob"] <= 0.98)
     liquid = [r for r in priced if r["liquid"]]
-    if not liquid:
-        log("no strike passed the liquidity filter; headline falls back to all priced strikes")
-    best = max(liquid or priced, key=lambda r: abs(r["edge"])) if priced else None
+    # If nothing is liquid -- which is exactly what a settled session looks like, every
+    # strike pinned to 0 or 1 -- there is no divergence worth a headline. Say so rather
+    # than promoting quote noise to the top of the page.
+    best = max(liquid, key=lambda r: abs(r["edge"])) if liquid else None
     log(f"{len(liquid)}/{len(priced)} strikes liquid; headline = "
         f"{best['strike'] if best else 'n/a'}")
     score = update_market_log(target, priced)

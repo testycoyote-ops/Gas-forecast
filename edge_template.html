@@ -216,7 +216,17 @@ const rows = (FLOW.rows||[]).filter(r=>r.market_prob!=null);
 /* ---------------- hero ---------------- */
 (function(){
   const best=FLOW.best;
-  if(!best||best.market_prob==null){ $("edgeNum").textContent="—"; $("edgeSub").textContent="No priced strikes available."; return; }
+  if(!best||best.market_prob==null){
+    $("edgeLabel").textContent = FLOW.live ? "No tradable divergence" : "Market settled";
+    $("edgeNum").innerHTML = `<span style="color:var(--muted)">—</span>`;
+    $("edgeSub").innerHTML = FLOW.live
+      ? `Every strike is pinned near 1¢ or 99¢, or too thin to quote. There is nothing here worth calling an edge.`
+      : `This session has settled, so every strike sits at 0 or 1. The ladder below is the final state; a live comparison returns when the next day's market opens.`;
+    $("vsBlock").innerHTML = `<div class="vsi"><div class="vl">Forecast</div><div class="vv">$${FLOW.forecast.pred_price.toFixed(3)}</div></div>`;
+    $("edgeCaveat").innerHTML = `<b>Why no number?</b> A settled or untraded strike still shows a price, but it reflects an empty order book rather than anyone's opinion. Publishing a "divergence" from that would be inventing a signal out of stale quotes.`;
+    $("curveSub").textContent = `Target: ${fmtLong(FLOW.target)}. Model centred on $${FLOW.forecast.pred_price.toFixed(4)} with σ $${FLOW.forecast.sigma}.`;
+    return;
+  }
   const e=best.edge;
   $("edgeLabel").textContent = `Biggest divergence · above $${best.strike.toFixed(4)}`;
   $("edgeNum").innerHTML = `<span class="${e>=0?'pos':'neg'}">${pp(e)}</span>`;
