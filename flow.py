@@ -293,7 +293,21 @@ def main() -> None:
     log(f"{len(trades)} trades scanned, {len(big)} large prints (threshold {thr:.0f})")
 
     priced = [r for r in rows if r["market_prob"] is not None]
-    best = max(priced, key=lambda r: abs(r["edge"])) if priced else None
+
+    # The headline divergence must come from a strike that actually trades. Deep
+    # in/out-of-the-money strikes carry stale quotes -- one showed 50c on a contract
+    # the model puts at 100% -- and those are quote noise, not disagreement. Require
+    # real volume and a price off the 1c/99c pins before a strike can be the headline.
+    vmax = max((r["volume"] for r in priced), default=0.0)
+    for r in priced:
+        r["liquid"] = bool(r["volume"] >= max(25.0, 0.05 * vmax)
+                           and 0.02 <= r["market_prob"] <= 0.98)
+    liquid = [r for r in priced if r["liquid"]]
+    if not liquid:
+        log("no strike passed the liquidity filter; headline falls back to all priced strikes")
+    best = max(liquid or priced, key=lambda r: abs(r["edge"])) if priced else None
+    log(f"{len(liquid)}/{len(priced)} strikes liquid; headline = "
+        f"{best['strike'] if best else 'n/a'}")
     score = update_market_log(target, priced)
     cftc = fetch_cftc()
 

@@ -145,6 +145,7 @@
     <svg id="curve" viewBox="0 0 820 300" role="img" aria-label="Model probability versus Kalshi market-implied probability at each strike price."></svg>
   </figure>
   <div class="scroll">
+    <div style="font-size:12px;color:var(--muted);margin:14px 0 6px">Dimmed rows are thin or pinned at 1¢/99¢ — the apparent edge there is a stale quote, not a disagreement, and they are excluded from the headline.</div>
     <table id="ladder">
       <thead><tr><th>Above</th><th>Market</th><th>Model</th><th>Edge</th><th></th><th>Volume</th><th>Open int.</th></tr></thead>
       <tbody></tbody>
@@ -294,11 +295,11 @@ let rt; addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(drawCurve,
 (function(){
   const tb=$("ladder").querySelector("tbody");
   if(!rows.length){ tb.innerHTML=`<tr><td colspan="7" class="empty">No priced strikes.</td></tr>`; return; }
-  const mx=Math.max(...rows.map(r=>Math.abs(r.edge)),0.01);
+  const mx=Math.max(...rows.filter(r=>r.liquid).map(r=>Math.abs(r.edge)),0.01);
   rows.slice().reverse().forEach(r=>{
-    const w=Math.abs(r.edge)/mx*54;
+    const w=Math.min(Math.abs(r.edge)/mx,1)*54;
     tb.insertAdjacentHTML("beforeend",
-      `<tr><td>$${r.strike.toFixed(4)}</td><td>${cts(r.market_prob)}</td><td>${pct1(r.model_prob)}</td>
+      `<tr style="${r.liquid?'':'opacity:.45'}" title="${r.liquid?'':'Thin or pinned quote — edge here is quote noise, not disagreement'}"><td>$${r.strike.toFixed(4)}</td><td>${cts(r.market_prob)}</td><td>${pct1(r.model_prob)}</td>
        <td class="${r.edge>=0?'pos':'neg'}">${pp(r.edge)}</td>
        <td style="width:60px"><span class="ebar" style="width:${w.toFixed(1)}px;background:var(--${r.edge>=0?'pos':'neg'})"></span></td>
        <td>${num(r.volume)}</td><td>${num(r.open_interest)}</td></tr>`);
