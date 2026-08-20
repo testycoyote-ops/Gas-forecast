@@ -311,9 +311,12 @@ def main() -> None:
     # If nothing is liquid -- which is exactly what a settled session looks like, every
     # strike pinned to 0 or 1 -- there is no divergence worth a headline. Say so rather
     # than promoting quote noise to the top of the page.
-    best = max(liquid, key=lambda r: abs(r["edge"])) if liquid else None
-    log(f"{len(liquid)}/{len(priced)} strikes liquid; headline = "
-        f"{best['strike'] if best else 'n/a'}")
+    # And never headline a divergence on a session that has already settled: the
+    # outcome is decided, so a leftover quote is a historical artefact, not an opinion
+    # anyone currently holds. Comparing a forecast to it would be theatre.
+    best = max(liquid, key=lambda r: abs(r["edge"])) if (liquid and live) else None
+    log(f"{len(liquid)}/{len(priced)} strikes liquid, live={live}; headline = "
+        f"{best['strike'] if best else 'suppressed'}")
     score = update_market_log(target, priced)
     cftc = fetch_cftc()
 
