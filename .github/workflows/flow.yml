@@ -1,13 +1,13 @@
-name: Update forecast
+name: Market flow
 
+# Kalshi's daily gas markets trade all day and settle at 11:59pm ET, so the flow
+# page is worth refreshing far more often than the price page. Public repos get
+# unlimited Actions minutes, so this is free; GitHub's scheduler is imprecise by
+# 5-20 minutes, which does not matter here.
 on:
   schedule:
-    # AAA publishes the new national average overnight ET. Two attempts a day:
-    # the second is a free retry if the first one runs before AAA has updated,
-    # or if GitHub delays the cron (it often does by 5-20 minutes).
-    - cron: "20 11 * * *"   # ~7:20am ET
-    - cron: "20 16 * * *"   # ~12:20pm ET
-  workflow_dispatch:        # lets you run it by hand from the Actions tab
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update:
+  flow:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +29,8 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Fetch prices and rebuild the page
-        run: python build.py
+      - name: Fetch market flow and rebuild the edge page
+        run: python flow.py
 
       - name: Commit if anything changed
         run: |
@@ -40,7 +40,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "nothing changed"
           else
-            git commit -m "Update forecast $(date -u +%Y-%m-%d)"
+            git commit -m "Update market flow $(date -u +'%Y-%m-%d %H:%M')"
             git pull --rebase --autostash origin main
             git push
           fi
