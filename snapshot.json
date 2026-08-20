@@ -6,9 +6,9 @@
  "monthAgo": 4.0032,
  "yearAgo": 3.1337,
  "wholesale": {
-  "asOf": "8/18/26",
-  "wti": 86.48,
-  "brent": 95.29,
+  "asOf": "8/19/26",
+  "wti": 87.28,
+  "brent": 92.37,
   "rbobNYH": null
  },
  "forecast": {
@@ -26,5 +26,5 @@
   "hi95": 4.14121933,
   "p_up": 0.9468113198121573
  },
- "built": "Aug 20, 2026 at 12:02 UTC"
+ "built": "Aug 20, 2026 at 17:51 UTC"
 }
