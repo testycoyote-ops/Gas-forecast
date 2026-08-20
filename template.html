@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="#2a78d6,#eb6834">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Next-Day Gas Price Forecast</title>
+<meta name="description" content="Tomorrow's AAA national average regular gasoline price, forecast from an AR(1) momentum model.">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gas Forecast">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Ctext x='16' y='24' font-size='20' font-family='system-ui,sans-serif' font-weight='600' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    color-scheme: light;
+    --plane:#f9f9f7; --surface-1:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --hair:#e9e8e2;
+    --actual:#2a78d6; --forecast:#eb6834;
+    --good:#0ca30c; --critical:#d03b3b; --warning:#fab219;
+    --band:rgba(235,104,52,.14);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --plane:#0d0d0d; --surface-1:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --hair:#242422;
+      --actual:#3987e5; --forecast:#d95926;
+      --band:rgba(217,89,38,.20);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface-1:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --hair:#242422;
+    --actual:#3987e5; --forecast:#d95926;
+    --band:rgba(217,89,38,.20);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--plane); color:var(--ink);
+    font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 56px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  h1{font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin-top:3px}
+  .themebtn{background:none;border:1px solid var(--axis);color:var(--ink-2);border-radius:7px;
+    padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+  .themebtn:hover{border-color:var(--muted)}
+
+  .card{background:var(--surface-1);border:1px solid var(--hair);border-radius:14px;padding:24px;margin-bottom:16px}
+
+  .hero{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+  .heroblock{min-width:0}
+  .herolabel{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .heronum{font-size:58px;line-height:1;font-weight:600;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;color:var(--ink)}
+  .herodelta{font-size:15px;font-weight:500;margin-top:10px;display:flex;align-items:center;gap:7px;color:var(--ink-2)}
+  .arrow{font-size:13px}
+  .up{color:var(--critical)} .down{color:var(--good)} .flat{color:var(--muted)}
+  .range{margin-top:6px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
+    background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin-top:24px}
+  .tile{background:var(--surface-1);padding:15px 16px}
+  .tlabel{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .tval{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .tnote{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+  h2{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);margin:0 0 4px}
+  .h2sub{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink-2);margin:0 0 10px;flex-wrap:wrap}
+  .lg{display:flex;align-items:center;gap:7px}
+  .sw{width:16px;height:3px;border-radius:2px;flex:none}
+  .swd{width:16px;height:0;border-top:3px dashed currentColor;flex:none}
+
+  figure{margin:0}
+  svg{display:block;width:100%;height:auto;touch-action:none}
+  .gridline{stroke:var(--grid);stroke-width:1}
+  .baseline{stroke:var(--axis);stroke-width:1}
+  .axlabel{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+  .cross{stroke:var(--axis);stroke-width:1;stroke-dasharray:3 3}
+
+  .tt{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
+    background:var(--surface-1);border:1px solid var(--axis);border-radius:9px;padding:9px 11px;
+    font-size:12.5px;color:var(--ink);box-shadow:0 6px 20px rgba(0,0,0,.13);white-space:nowrap;z-index:5}
+  .ttd{color:var(--muted);font-size:11.5px;margin-bottom:3px}
+  .ttv{font-weight:600;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:7px}
+  .ttdot{width:9px;height:9px;border-radius:50%;flex:none}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--hair)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:500;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+  details{margin-top:14px}
+  summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);padding:5px 0;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--muted)}
+  details[open] summary::before{content:"▾ "}
+
+  /* --- precision block --- */
+  .pcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px}
+  .pcol h3{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+    font-weight:600;margin:0 0 12px;display:flex;align-items:center;gap:7px}
+  .pcol h3 .sw{width:14px;height:3px;border-radius:2px}
+  .prow{display:grid;grid-template-columns:1fr 46px;align-items:center;gap:12px;margin-bottom:11px}
+  .plab{font-size:13px;color:var(--ink-2);min-width:0}
+  .plab b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .ptrack{grid-column:1/-1;height:7px;background:var(--plane);border:1px solid var(--hair);
+    border-radius:4px;overflow:hidden;margin-top:-4px}
+  .pfill{height:100%;border-radius:0 4px 4px 0}
+  .ppct{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+  .pnote{font-size:12.5px;color:var(--muted);margin-top:18px;line-height:1.6}
+
+  .prose{font-size:14px;color:var(--ink-2)}
+  .prose p{margin:0 0 11px}
+  .prose code{background:var(--plane);border:1px solid var(--hair);border-radius:5px;padding:1.5px 6px;font-size:12.5px}
+  .prose strong{color:var(--ink);font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:16px 0 4px}
+  .stat{border-left:2px solid var(--actual);padding-left:12px}
+  .sv{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+  .sl{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .caveat{border-left:2px solid var(--warning);padding-left:12px;font-size:13px;color:var(--ink-2);margin-top:16px}
+  .banner{display:none;background:var(--surface-1);border:1px solid var(--warning);
+    border-left-width:3px;border-radius:11px;padding:12px 15px;margin-bottom:16px;
+    font-size:13px;color:var(--ink-2)}
+  .banner.on{display:block}
+  .banner b{color:var(--ink)}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.7}
+  footer a{color:var(--muted)}
+  @media (max-width:520px){ .heronum{font-size:46px} .wrap{padding:20px 14px 44px} .card{padding:18px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Next-Day Gas Price Forecast</h1>
+    <div class="sub">AAA national average · regular unleaded</div>
+  </div>
+  <button class="themebtn" id="tbtn">Dark</button>
+</header>
+
+<div class="banner" id="banner"></div>
+
+<!-- ============ HERO ============ -->
+<section class="card">
+  <div class="hero">
+    <div class="heroblock">
+      <div class="herolabel" id="predLabel">Forecast</div>
+      <div class="heronum" id="predNum">—</div>
+      <div class="herodelta" id="predDelta"></div>
+      <div class="range" id="predRange"></div>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile">
+      <div class="tlabel">Latest actual</div>
+      <div class="tval" id="tToday">—</div>
+      <div class="tnote" id="tTodayNote"></div>
+    </div>
+    <div class="tile">
+      <div class="tlabel">1-day change</div>
+      <div class="tval" id="tChg">—</div>
+      <div class="tnote">yesterday → latest</div>
+    </div>
+    <div class="tile">
+      <div class="tlabel">7-day pace</div>
+      <div class="tval" id="tDrift">—</div>
+      <div class="tnote">avg change per day</div>
+    </div>
+    <div class="tile">
+      <div class="tlabel">Chance it rises</div>
+      <div class="tval" id="tProb">—</div>
+      <div class="tnote">P(tomorrow &gt; today)</div>
+    </div>
+    <div class="tile">
+      <div class="tlabel">Exact hit</div>
+      <div class="tval" id="tExact">—</div>
+      <div class="tnote" id="tExactNote"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRECISION ============ -->
+<section class="card">
+  <h2>How close will it land?</h2>
+  <div class="h2sub" id="precSub"></div>
+  <div class="pcols">
+    <div class="pcol">
+      <h3><span class="sw" style="background:var(--forecast)"></span>Lands exactly on</h3>
+      <div id="pExact"></div>
+    </div>
+    <div class="pcol">
+      <h3><span class="sw" style="background:var(--actual)"></span>Lands within</h3>
+      <div id="pNear"></div>
+    </div>
+  </div>
+  <div class="pnote" id="precNote"></div>
+  <details>
+    <summary>View as table</summary>
+    <table id="tblP"><thead><tr><th>Outcome</th><th>Value</th><th>Probability</th></tr></thead><tbody></tbody></table>
+  </details>
+</section>
+
+<!-- ============ CHART ============ -->
+<section class="card">
+  <h2>Recent trend</h2>
+  <div class="h2sub" id="chartSub"></div>
+  <div class="legend">
+    <span class="lg"><span class="sw" style="background:var(--actual)"></span>Published AAA average</span>
+    <span class="lg" style="color:var(--forecast)"><span class="swd"></span><span style="color:var(--ink-2)">Forecast + 80% range</span></span>
+  </div>
+  <figure style="position:relative">
+    <div class="tt" id="tt"></div>
+    <svg id="chart" viewBox="0 0 820 300" role="img" aria-label="Line chart of the AAA national average regular gasoline price over recent weeks, with the next-day forecast."></svg>
+  </figure>
+  <details>
+    <summary>View as table</summary>
+    <table id="tbl"><thead><tr><th>Date</th><th>Price</th><th>Change</th><th>Type</th></tr></thead><tbody></tbody></table>
+  </details>
+</section>
+
+<!-- ============ MODEL ============ -->
+<section class="card">
+  <h2>How the forecast works</h2>
+  <div class="h2sub">One equation, no black box.</div>
+  <div class="prose">
+    <p>The AAA national average is a survey of ~120,000 stations, so it is heavily smoothed and moves in <strong>runs</strong> rather than jumps. That makes today's move the single best predictor of tomorrow's move:</p>
+    <p style="text-align:center;font-size:15px;color:var(--ink);margin:16px 0">
+      <code>change<sub>tomorrow</sub> = drift + 0.871 × (change<sub>today</sub> − drift)</code>
+    </p>
+    <p>where <em>drift</em> is the average daily change over the past week. In plain terms: <strong>tomorrow repeats about 87% of today's move</strong>, pulled slightly back toward the week's pace.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="sv">0.871</div><div class="sl">daily persistence (φ)</div></div>
+      <div class="stat"><div class="sv">1,862</div><div class="sl">weeks of data behind it</div></div>
+      <div class="stat"><div class="sv">17.8%</div><div class="sl">MAE better than no-change*</div></div>
+      <div class="stat"><div class="sv">68.6%</div><div class="sl">direction hit rate*</div></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:12px">*Walk-forward out-of-sample test on 1,756 weeks (1992–2026) of EIA weekly US regular retail prices, expanding window, coefficient re-estimated at every step. The 0.871 daily φ is derived from the weekly autocorrelation (0.548) by temporal aggregation; that weekly figure is stable at 0.532–0.548 across every sub-era tested, so the daily φ lands in a tight 0.864–0.871 band.</p>
+
+    <div class="caveat">
+      <strong>Known limits.</strong> The daily φ is inferred from weekly data, not yet fit on a long daily AAA series — no free bulk source for that exists, so the daily log has to accumulate forward. The ±band is sized from only 9 observed daily changes and should be treated as approximate. The model is pure momentum: it will be wrong on the day a hurricane, refinery outage, or geopolitical shock hits, because it does not read the news.
+    </div>
+  </div>
+</section>
+
+<footer>
+  Data: <a href="https://gasprices.aaa.com/">AAA Fuel Gauge Report</a> · <a href="https://www.eia.gov/todayinenergy/prices.php">EIA Daily Prices</a><br>
+  <span id="stamp"></span>
+</footer>
+</div>
+
+<script>
+/*__DATA_START__*/
+/*__DATA_END__*/
+const PHI = 0.8709, SIGMA = 0.0103;
+
+/* ================== MODEL ================== */
+function forecast(s){
+  const d1 = s.today - s.yesterday;
+  const mu = (s.today - s.weekAgo)/7;
+  const dhat = mu + PHI*(d1 - mu);
+  const p = s.today + dhat;
+  const erf = x=>{const t=1/(1+.3275911*Math.abs(x));
+    const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+    return x>=0?y:-y;};
+  return {d1,mu,dhat,p,
+    lo80:p-1.2816*SIGMA, hi80:p+1.2816*SIGMA,
+    lo95:p-1.9600*SIGMA, hi95:p+1.9600*SIGMA,
+    pUp:0.5*(1+erf(dhat/(SIGMA*Math.SQRT2)))};
+}
+const F = forecast(SNAPSHOT);
+
+/* ================== FORMATTING ================== */
+const $ = id=>document.getElementById(id);
+const usd = v=>"$"+v.toFixed(3);
+const cents = v=>(v>=0?"+":"−")+Math.abs(v*100).toFixed(1)+"¢";
+const D = s=>{const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d));};
+const addDay = s=>{const t=D(s);t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10);};
+const fmtDate = s=>D(s).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"});
+const fmtLong = s=>D(s).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",timeZone:"UTC"});
+
+const TARGET = addDay(SNAPSHOT.asOf);
+
+/* ================== HERO + TILES ================== */
+$("predLabel").textContent = "Forecast for "+fmtLong(TARGET);
+$("predNum").textContent = usd(F.p);
+const dir = F.dhat>0.0005?"up":F.dhat<-0.0005?"down":"flat";
+$("predDelta").innerHTML =
+  `<span class="${dir}"><span class="arrow">${dir==="up"?"▲":dir==="down"?"▼":"■"}</span> ${cents(F.dhat)}</span>`
+  + `<span style="color:var(--muted)">vs ${usd(SNAPSHOT.today)} on ${fmtDate(SNAPSHOT.asOf)}</span>`;
+$("predRange").textContent = `80% range ${usd(F.lo80)} – ${usd(F.hi80)}  ·  95% range ${usd(F.lo95)} – ${usd(F.hi95)}`;
+
+$("tToday").textContent = usd(SNAPSHOT.today);
+$("tTodayNote").textContent = "published "+fmtDate(SNAPSHOT.asOf);
+$("tChg").innerHTML = `<span class="${F.d1>0?'up':F.d1<0?'down':'flat'}">${cents(F.d1)}</span>`;
+$("tDrift").innerHTML = `<span class="${F.mu>0?'up':F.mu<0?'down':'flat'}">${cents(F.mu)}</span>`;
+$("tProb").textContent = Math.round(F.pUp*100)+"%";
+(function(){
+  const w = SNAPSHOT.wholesale || {};
+  const bits = [];
+  if(w.wti!=null)     bits.push(`WTI $${w.wti.toFixed(2)}`);
+  if(w.brent!=null)   bits.push(`Brent $${w.brent.toFixed(2)}`);
+  if(w.rbobNYH!=null) bits.push(`RBOB NY Harbor $${w.rbobNYH.toFixed(2)}/gal`);
+  const span = `${fmtDate(HISTORY[0][0])} – ${fmtDate(TARGET)}.`;
+  $("chartSub").textContent = span + (bits.length
+    ? ` Wholesale context${w.asOf?` (${w.asOf} close)`:""}: ${bits.join(" · ")}.`
+    : "");
+})();
+$("stamp").textContent = "Model: AR(1) on daily changes, φ=0.871 · rebuilt "+BUILT;
+
+/* Stale-data banner: if the newest AAA figure is more than a day behind, say so loudly
+   rather than quietly presenting an old forecast as today's. */
+(function(){
+  const ageDays = Math.floor((Date.now() - D(TARGET).getTime())/86400000);
+  if(ageDays >= 1){
+    const b=$("banner"); b.classList.add("on");
+    b.innerHTML = `<b>This forecast is ${ageDays} day${ageDays>1?"s":""} old.</b> It targets `
+      + `${fmtLong(TARGET)}, which has already passed — the daily rebuild has not run since then. `
+      + `Latest AAA figure on file is from ${fmtLong(SNAPSHOT.asOf)}.`;
+  }
+})();
+
+/* ================== PRECISION: P(exact) and P(within) ==================
+   The forecast distribution is continuous, so "exactly" only has meaning once you
+   fix a rounding precision. P(rounds to v at d decimals) = Φ((v+h−μ)/σ) − Φ((v−h−μ)/σ)
+   with h = half a rounding step. AAA publishes 4 decimals, so that is the strictest
+   reading of "exact" — and it is necessarily a small number. */
+const Ncdf = z => 0.5*(1 - (function(x){const t=1/(1+.3275911*Math.abs(x));
+  const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return x>=0?y:-y;})(-z/Math.SQRT2));
+const bandP = (lo,hi) => Ncdf((hi-F.p)/SIGMA) - Ncdf((lo-F.p)/SIGMA);
+
+const EXACT = [4,3,2].map(d=>{
+  const step=Math.pow(10,-d), v=+F.p.toFixed(d);
+  return {label: d===4?"to AAA's 4 decimals":d===3?"to the tenth of a cent":"to the whole cent",
+          value:"$"+v.toFixed(d), p:bandP(v-step/2, v+step/2)};
+});
+const NEAR = [[0.005,"½¢ either way"],[0.01,"1¢ either way"],[0.02,"2¢ either way"]].map(([t,l])=>(
+  {label:l, value:`$${(F.p-t).toFixed(3)} – $${(F.p+t).toFixed(3)}`, p:bandP(F.p-t,F.p+t)}));
+
+function rows(host, arr, color){
+  host.innerHTML = arr.map(r=>
+    `<div class="prow">
+       <div class="plab">${r.label} &nbsp;<b>${r.value}</b></div>
+       <div class="ppct">${r.p<0.01? r.p*100<1 ? (r.p*100).toFixed(1) : Math.round(r.p*100) : Math.round(r.p*100)}%</div>
+       <div class="ptrack"><div class="pfill" style="width:${Math.max(r.p*100,0.6).toFixed(2)}%;background:${color}"></div></div>
+     </div>`).join("");
+}
+rows($("pExact"), EXACT, "var(--forecast)");
+rows($("pNear"),  NEAR,  "var(--actual)");
+
+$("tExact").textContent = (EXACT[1].p*100).toFixed(1)+"%";
+$("tExactNote").textContent = `lands on ${EXACT[1].value} exactly`;
+
+$("precSub").textContent = `Probabilities around the ${usd(F.p)} forecast, from the model's ±$${SIGMA.toFixed(4)} residual spread.`;
+$("precNote").innerHTML =
+  `<strong style="color:var(--ink-2)">Why "exactly" is so small:</strong> AAA publishes to four decimals, so there are ~200 plausible values within one cent of the forecast. `
+  + `Hitting the precise published figure is a ${(EXACT[0].p*100).toFixed(1)}% shot no matter how good the model is — that number measures AAA's precision, not the forecast's skill. `
+  + `The honest read is the "within" column: ${Math.round(NEAR[1].p*100)}% odds of landing inside a penny.`;
+
+const tbP=$("tblP").querySelector("tbody");
+EXACT.forEach(r=>tbP.insertAdjacentHTML("beforeend",`<tr><td>Exact ${r.label}</td><td>${r.value}</td><td>${(r.p*100).toFixed(2)}%</td></tr>`));
+NEAR.forEach(r=>tbP.insertAdjacentHTML("beforeend",`<tr><td>Within ${r.label}</td><td>${r.value}</td><td>${(r.p*100).toFixed(2)}%</td></tr>`));
+
+/* ================== CHART ==================
+   The viewBox is narrowed on small screens so axis text does not shrink into
+   illegibility when 820 user units are squeezed into a ~350px phone viewport. */
+const H=300,MT=18,MB=34;
+let W=820, ML=48, MR=64, narrow=false;
+const pts = HISTORY.map(([d,v])=>({d,v,t:D(d).getTime()}));
+const fpt = {d:TARGET, v:F.p, t:D(TARGET).getTime()};
+const t0 = pts[0].t, t1 = fpt.t;
+const allV = pts.map(p=>p.v).concat([F.lo95,F.hi95]);
+let vMin=Math.min(...allV), vMax=Math.max(...allV);
+const pad=(vMax-vMin)*0.14; vMin-=pad; vMax+=pad;
+const X = t=>ML+(t-t0)/(t1-t0)*(W-ML-MR);
+const Y = v=>MT+(vMax-v)/(vMax-vMin)*(H-MT-MB);
+
+function drawChart(){
+  narrow = window.innerWidth < 620;
+  W  = narrow ? 400 : 820;
+  ML = narrow ? 40  : 48;
+  MR = narrow ? 56  : 64;
+  const FS = narrow ? 13 : 11;          // axis text, in viewBox units
+
+function ticks(lo,hi,n){const raw=(hi-lo)/n,mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=raw)||10*mag;
+  const out=[];for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)out.push(+v.toFixed(6));return out;}
+
+let svg="";
+// gridlines + y labels
+ticks(vMin,vMax,narrow?4:5).forEach(v=>{
+  svg+=`<line class="gridline" x1="${ML}" x2="${W-MR}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/>`;
+  svg+=`<text class="axlabel" font-size="${FS}" x="${ML-8}" y="${(Y(v)+FS*0.34).toFixed(1)}" text-anchor="end">$${v.toFixed(2)}</text>`;
+});
+// x labels — evenly spaced in TIME (not index), so an uneven history still reads right
+(function(){
+  const n = narrow?2:4, seen=new Set(), marks=[];
+  for(let k=0;k<n;k++){
+    const t=t0+(t1-t0)*k/n;
+    let best=pts[0],bd=1e18;
+    pts.forEach(p=>{const d=Math.abs(p.t-t); if(d<bd){bd=d;best=p;}});
+    if(!seen.has(best.d) && (t1-best.t)/86400000 > (narrow?9:4)){ seen.add(best.d); marks.push(best); }
+  }
+  marks.push(fpt);
+  marks.forEach(p=>{
+    svg+=`<text class="axlabel" font-size="${FS}" x="${X(p.t).toFixed(1)}" y="${H-MB+FS+7}" text-anchor="middle">${fmtDate(p.d)}</text>`;
+  });
+})();
+svg+=`<line class="baseline" x1="${ML}" x2="${W-MR}" y1="${H-MB}" y2="${H-MB}"/>`;
+
+// 80% forecast band
+const last=pts[pts.length-1];
+svg+=`<path d="M ${X(last.t).toFixed(1)} ${Y(last.v).toFixed(1)} L ${X(fpt.t).toFixed(1)} ${Y(F.hi80).toFixed(1)} L ${X(fpt.t).toFixed(1)} ${Y(F.lo80).toFixed(1)} Z" fill="var(--band)"/>`;
+
+// actual line — segments spanning a logging gap (>2 days) are drawn faint + dashed,
+// so an interpolated stretch never reads as observed data.
+for(let i=1;i<pts.length;i++){
+  const a=pts[i-1], b=pts[i];
+  const gap=(b.t-a.t)/86400000 > 2;
+  svg+=`<line x1="${X(a.t).toFixed(1)}" y1="${Y(a.v).toFixed(1)}" x2="${X(b.t).toFixed(1)}" y2="${Y(b.v).toFixed(1)}"`
+     + ` stroke="var(--actual)" stroke-width="2" stroke-linecap="round"`
+     + (gap?` stroke-dasharray="2 5" opacity="0.4"`:``) + `/>`;
+}
+// forecast connector
+svg+=`<line x1="${X(last.t).toFixed(1)}" y1="${Y(last.v).toFixed(1)}" x2="${X(fpt.t).toFixed(1)}" y2="${Y(fpt.v).toFixed(1)}" stroke="var(--forecast)" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>`;
+// observed markers — thin out once the series is dense enough that dots would merge
+const maxDots = narrow?28:45;
+if(pts.length <= maxDots){
+  const r = pts.length>30 ? 2.4 : (narrow?3.6:3.2);
+  pts.forEach(p=>{svg+=`<circle cx="${X(p.t).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${r}" fill="var(--actual)" stroke="var(--surface-1)" stroke-width="${r>3?2:1.5}"/>`;});
+}
+// forecast marker + direct label
+svg+=`<circle cx="${X(fpt.t).toFixed(1)}" cy="${Y(fpt.v).toFixed(1)}" r="${narrow?6:5.5}" fill="var(--forecast)" stroke="var(--surface-1)" stroke-width="2"/>`;
+svg+=`<text x="${(X(fpt.t)+(narrow?9:11)).toFixed(1)}" y="${(Y(fpt.v)+4).toFixed(1)}" fill="var(--forecast)" font-size="${narrow?14:13}" font-weight="600" style="font-variant-numeric:tabular-nums">${usd(fpt.v)}</text>`;
+// last actual direct label (offset left + up so it clears the forecast label)
+svg+=`<text x="${(X(last.t)-9).toFixed(1)}" y="${(Y(last.v)-14).toFixed(1)}" fill="var(--ink-2)" font-size="${narrow?13:12}" text-anchor="end" style="font-variant-numeric:tabular-nums">${usd(last.v)}</text>`;
+// hover layer
+svg+=`<line class="cross" id="cx" x1="0" x2="0" y1="${MT}" y2="${H-MB}" opacity="0"/>`;
+svg+=`<rect id="hit" x="${ML}" y="${MT}" width="${W-ML-MR}" height="${H-MT-MB}" fill="transparent"/>`;
+const el=$("chart");
+el.setAttribute("viewBox",`0 0 ${W} ${H}`);
+el.innerHTML=svg;
+}
+
+drawChart();
+let rt; addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{
+  const wasNarrow=narrow; drawChart();
+  if(wasNarrow!==narrow){/* crosshair element was replaced */}
+},150);});
+
+/* hover crosshair + tooltip */
+const all=pts.concat([fpt]), chart=$("chart"), tt=$("tt");
+const cx=()=>$("cx");
+function move(e){
+  const r=chart.getBoundingClientRect(), sc=W/r.width;
+  const px=(e.clientX-r.left)*sc;
+  let best=all[0],bd=1e9;
+  all.forEach(p=>{const d=Math.abs(X(p.t)-px); if(d<bd){bd=d;best=p;}});
+  const isF = best===fpt, c=cx();
+  if(c){c.setAttribute("x1",X(best.t)); c.setAttribute("x2",X(best.t)); c.setAttribute("opacity","1");}
+  const i=all.indexOf(best), prev=i>0?all[i-1]:null;
+  let chg="";
+  if(prev){
+    const days=Math.round((best.t-prev.t)/86400000);
+    chg=`<div class="ttd" style="margin:4px 0 0">${cents(best.v-prev.v)} `
+      + (days===1?`from ${fmtDate(prev.d)}`:`over ${days} days (no data between)`)+`</div>`;
+  }
+  tt.innerHTML=`<div class="ttd">${fmtLong(best.d)}${isF?" · forecast":""}</div>
+    <div class="ttv"><span class="ttdot" style="background:var(--${isF?'forecast':'actual'})"></span>${usd(best.v)}</div>${chg}`;
+  tt.style.opacity="1";
+  const lx=X(best.t)/sc, ly=Y(best.v)/sc;
+  tt.style.left=Math.min(Math.max(lx-tt.offsetWidth/2,0),r.width-tt.offsetWidth)+"px";
+  tt.style.top=Math.max(ly-tt.offsetHeight-14,0)+"px";
+}
+chart.addEventListener("pointermove",move);
+chart.addEventListener("pointerleave",()=>{tt.style.opacity="0";const c=cx();if(c)c.setAttribute("opacity","0");});
+
+/* ================== TABLE ================== */
+const tb=$("tbl").querySelector("tbody");
+all.slice().reverse().forEach((p,i,arr)=>{
+  const nxt=arr[i+1];
+  tb.insertAdjacentHTML("beforeend",
+    `<tr><td>${fmtDate(p.d)}</td><td>${usd(p.v)}</td><td>${nxt?cents(p.v-nxt.v):"—"}</td><td>${p===fpt?"forecast":"actual"}</td></tr>`);
+});
+
+/* ================== THEME ================== */
+const btn=$("tbtn");
+function isDark(){const s=document.documentElement.dataset.theme;
+  return s? s==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;}
+function sync(){btn.textContent=isDark()?"Light":"Dark";}
+btn.onclick=()=>{document.documentElement.dataset.theme=isDark()?"light":"dark";sync();};
+sync();
+</script>
+</body>
+</html>
