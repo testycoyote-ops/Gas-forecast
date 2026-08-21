@@ -20,7 +20,15 @@ def check(name, cond, detail=""):
 
 print("\nmodel")
 f = model.forecast(4.0860, 4.0654, 4.0360)
-check("forecast matches the published page", abs(f["pred_price"] - 4.104863) < 1e-5, f"{f['pred_price']:.6f}")
+# PHI is calibrated now, so pinning a literal price here would fail every time the
+# history file grows. Pin the algebra instead: the forecast must equal the model
+# form evaluated at whatever PHI is currently live.
+_drift = (4.0860 - 4.0360) / 7
+_want = 4.0860 + _drift + model.PHI * ((4.0860 - 4.0654) - _drift)
+check("forecast matches the model form at live PHI", abs(f["pred_price"] - _want) < 1e-9,
+      f"{f['pred_price']:.6f} at phi={model.PHI}")
+check("forecast reports the params it used",
+      f["phi"] == model.PHI and f["sigma"] == model.SIGMA)
 check("prob_above at the mean is 50%", abs(model.prob_above(f["pred_price"], f["pred_price"]) - .5) < 1e-9)
 check("prob_above is monotone decreasing",
       all(model.prob_above(k, 4.105) > model.prob_above(k + .001, 4.105) for k in [4.09, 4.10, 4.11]))

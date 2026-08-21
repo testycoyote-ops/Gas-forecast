@@ -7,11 +7,12 @@ allowed into the history file, and a parse failure exits non-zero so the GitHub
 Actions run goes red and emails you.
 """
 from __future__ import annotations
-import csv, html, json, os, re, sys, datetime as dt
+import csv, html, importlib, json, os, re, sys, datetime as dt
 from pathlib import Path
 
 import requests
 
+import calibrate
 import model
 
 ROOT     = Path(__file__).parent
@@ -107,6 +108,36 @@ MONTHS = ("January February March April May June July August "
           "September October November December").split()
 
 
+def page_dates(raw: str) -> list[dt.date]:
+    """Every date AAA prints on the page, most specific format first.
+
+    Two formats matter. The page's own "Price as of:" stamp is numeric —
+    `8/21/26` — which is what the live site actually serves; the long form
+    ("August 21, 2026") turns up in prose elsewhere on the page. The numeric
+    stamp is checked first because it is the one attached to the price table.
+
+    Kept separate from resolve_date() so the backfill can date an archived page
+    against its snapshot timestamp instead of against the wall clock.
+    """
+    text = to_text(raw)
+    found: list[dt.date] = []
+
+    for m in re.finditer(r"\b(\d{1,2})/(\d{1,2})/(\d{2}|20\d{2})\b", text):
+        mm, dd, yy = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        try:
+            found.append(dt.date(yy + 2000 if yy < 100 else yy, mm, dd))
+        except ValueError:
+            continue
+
+    for m in re.finditer(r"\b(" + "|".join(MONTHS) + r")\s+(\d{1,2}),?\s+(20\d{2})\b", text):
+        try:
+            found.append(dt.date(int(m.group(3)), MONTHS.index(m.group(1)) + 1, int(m.group(2))))
+        except ValueError:
+            continue
+
+    return found
+
+
 def resolve_date(raw: str, now: dt.datetime | None = None) -> dt.date:
     """Which calendar day does AAA's "Current Avg" actually belong to?
 
@@ -121,17 +152,11 @@ def resolve_date(raw: str, now: dt.datetime | None = None) -> dt.date:
     now = now or dt.datetime.now(dt.timezone.utc)
     et = now.astimezone(dt.timezone(dt.timedelta(hours=-4)))
 
-    text = to_text(raw)
-    m = re.search(r"\b(" + "|".join(MONTHS) + r")\s+(\d{1,2}),?\s+(20\d{2})\b", text)
-    if m:
-        try:
-            found = dt.date(int(m.group(3)), MONTHS.index(m.group(1)) + 1, int(m.group(2)))
-            if abs((found - et.date()).days) <= 2:      # sane relative to now
-                log(f"date from AAA page: {found}")
-                return found
-            log(f"ignoring implausible page date {found} (ET today is {et.date()})")
-        except ValueError:
-            pass
+    for found in page_dates(raw):
+        if abs((found - et.date()).days) <= 2:          # sane relative to now
+            log(f"date from AAA page: {found}")
+            return found
+        log(f"ignoring implausible page date {found} (ET today is {et.date()})")
 
     d = et.date() if et.hour >= 6 else et.date() - dt.timedelta(days=1)
     log(f"no usable page date; using clock rule -> {d} (ET now {et:%Y-%m-%d %H:%M})")
@@ -223,6 +248,18 @@ def main() -> None:
         log("history already current")
     write_history(list(known.values()))
 
+    # Re-estimate PHI and SIGMA from the history we just extended, then reload the
+    # model so this run's forecast uses the fresh values. Every case feeding the
+    # calibration is fully in the past -- it needs day t+1 to score a forecast made
+    # on day t -- so there is no look-ahead into the day being predicted.
+    try:
+        prm = calibrate.calibrate_file(HISTORY)
+        importlib.reload(model)
+        log(f"calibrated on {prm['n_cases']} cases: phi={model.PHI} sigma=${model.SIGMA} "
+            f"(direct phi {prm['phi_direct']}, resid rmse {prm['resid_rmse']})")
+    except Exception as e:                          # noqa: BLE001
+        log(f"calibration failed (non-fatal, priors stand): {e}")
+
     rows = sorted(known.values(), key=lambda r: r["date"])
     series = [[r["date"], round(r["regular"], 4)] for r in rows][-90:]
 
@@ -240,6 +277,7 @@ def main() -> None:
     built = dt.datetime.now(dt.timezone.utc).strftime("%b %-d, %Y at %H:%M UTC")
     data_js = (f"const SNAPSHOT = {json.dumps(snapshot, indent=2)};\n"
                f"const HISTORY = {json.dumps(series)};\n"
+               f"const PARAMS = {json.dumps(model.PARAMS, indent=2)};\n"
                f"const BUILT = {json.dumps(built)};\n")
 
     tpl = TEMPLATE.read_text()

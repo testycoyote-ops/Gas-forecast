@@ -179,12 +179,47 @@ Exact-to-four-decimals is always a tiny number (~0.4%) — that measures AAA's p
 precision, not the model's skill, and a perfect forecaster would score the same. The
 "within 1¢" figure is the one that tracks whether the model is actually working.
 
+### Calibration — the parameters are no longer frozen
+
+`calibrate.py` re-estimates φ and σ from the model's own realised forecast errors on every
+build, shrinking them toward the priors above. Results land in `params.json`, which both
+`model.py` and the page read. Two problems it fixes:
+
+**σ was the wrong quantity.** $0.0103 is the *unconditional* standard deviation of a
+one-day change in the AAA average. What a forecast needs is the *conditional* one — the
+spread of what is left over AFTER the model has made its prediction. Those are different
+numbers, and the second is always smaller. Inverting the same temporal-aggregation formula
+that produced φ gives an innovation sd of **$0.0042**; the Kalshi ladder has been implying
+**$0.0023–$0.0034**. The model was quoting a distribution roughly three times too wide and
+being beaten on Brier score for it.
+
+**φ may be too high for AAA specifically.** Fitted directly against the daily observations
+that exist, persistence looks more like **0.61–0.74**, not 0.871. That sample is far too
+thin to act on by itself, but it is real evidence and it points one way. The weekly
+inversion also assumes AAA's daily series is exactly AR(1) — if AAA's own smoothing window
+adds any moving-average structure, the inversion is biased upward.
+
+Both are handled by shrinkage rather than by picking a side. While the history is short the
+priors dominate and the model behaves much as before; as observations accumulate the data
+takes over, without anyone redoing the analysis by hand.
+
+One deliberate piece of conservatism: **tightening σ while the point forecast is still
+biased makes the model confidently wrong**, which scores worse than being vaguely right.
+That was measured, not assumed — dropping σ to $0.0042 while leaving φ alone made the Brier
+score *worse*, not better. So σ's prior carries heavy weight, and the model only narrows as
+its own errors earn it.
+
 ### Known limits
 
-1. **φ is inferred, not directly fit.** Backed out from weekly data. Tight band, solid
-   reasoning, still an inference until daily history confirms it.
-2. **The ± band is provisional.** σ = $0.0103 came from only 9 observed daily changes.
-   Treat the intervals as approximate for now. This tightens on its own as the log grows.
+1. **φ is still mostly inferred.** Daily changes are small and serially noisy, so the
+   standard error on a directly fitted φ is around 0.04 even with 400 observations. The
+   prior will keep doing real work for a long time yet.
+2. **The sample is tiny.** After discarding every pair that straddles a gap in the log,
+   there were **nine** usable next-day observations. Every accuracy claim rests on those
+   nine until `backfill.py` or the passage of time fixes it. Run the backfill.
+3. **The model still loses to the market.** Over the settled strikes logged so far, Brier
+   0.064 for the model against 0.009 for Kalshi. The corrections here narrowed the gap;
+   they did not close it. Read `edge.html`'s scoreboard, not the backtest.
 3. **Pure momentum.** The model does not read the news. It will be wrong on the day a
    hurricane, refinery outage, or geopolitical shock hits — precisely the days momentum
    breaks.
@@ -225,9 +260,19 @@ What you get instead:
 ### Read the edge honestly
 
 The first live comparison had the market pricing "above $4.1050" at 25¢ while the model
-said 49% — a 24-point gap. That is **not** free money. It almost certainly means the
-model's σ ($0.0103) is too wide: the market's implied distribution is far tighter than
-the model's, and the market has real money behind it every single day.
+said 49% — a 24-point gap. That was **not** free money, and chasing it would have been a
+mistake. Fitting a normal to each side's full strike ladder made the reason plain:
+
+| Target | Actual | Market μ | Market σ | Model μ | Model σ |
+|---|---|---|---|---|---|
+| 2026-08-20 | $4.1044 | $4.1048 | $0.0029 | $4.1049 | $0.0103 |
+| 2026-08-21 | $4.1092 | $4.1088 | $0.0023 | $4.1210 | $0.0103 |
+
+The market was inside half a cent both days. The model matched it on the 20th and missed
+by 1.2¢ on the 21st — a day when momentum decelerated sharply (+2.1¢, +1.8¢, then +0.5¢)
+and a φ of 0.871 kept extrapolating. And its σ was three to four times the market's
+throughout. A wide distribution over a biased centre is what produced that 24-point
+"edge": it was the model being vague, not the market being wrong.
 
 This is exactly what the scoreboard is for. If after a few months the model's Brier score
 cannot beat the market's, the model is not finding an edge no matter how good the
@@ -245,11 +290,16 @@ backtest looked. The page says so on its face rather than flattering the model.
 | `template.html` | The real source. Edit this. |
 | `build.py` | Fetches, validates, updates history, renders `index.html` + `snapshot.json`. |
 | `model.py` | The forecast equation, shared by both pages so they can never disagree. |
+| `calibrate.py` | Re-estimates φ and σ from realised forecast errors, shrunk toward their priors. |
+| `params.json` | The current φ and σ. Generated by `calibrate.py` — don't edit by hand. |
+| `backfill.py` | Rebuilds daily history from archived AAA snapshots. Run it from the Actions tab. |
 | `flow.py` | Fetches Kalshi + CFTC, scores the model against the market, renders `edge.html`. |
 | `edge_template.html` | Source for the flow page. Edit this, not `edge.html`. |
 | `market_log.csv` | Every logged strike with model and market probabilities, settled once AAA publishes. |
 | `test_build.py` | Offline tests for the parser and its guards. `python test_build.py` |
 | `test_flow.py` | Offline tests for the Kalshi/CFTC parsing and the scoreboard. |
+| `test_calibrate.py` | Offline tests for the calibration: gap handling, shrinkage, rails. |
+| `test_backfill.py` | Offline tests for archive dating, harvesting and merge precedence. |
 | `history.csv` | The accumulating daily AAA series. The asset that makes this better over time. |
 
 ## Data sources

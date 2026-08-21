@@ -252,7 +252,7 @@
     <p style="font-size:12.5px;color:var(--muted);margin-top:12px">*Walk-forward out-of-sample test on 1,756 weeks (1992–2026) of EIA weekly US regular retail prices, expanding window, coefficient re-estimated at every step. The 0.871 daily φ is derived from the weekly autocorrelation (0.548) by temporal aggregation; that weekly figure is stable at 0.532–0.548 across every sub-era tested, so the daily φ lands in a tight 0.864–0.871 band.</p>
 
     <div class="caveat">
-      <strong>Known limits.</strong> The daily φ is inferred from weekly data, not yet fit on a long daily AAA series — no free bulk source for that exists, so the daily log has to accumulate forward. The ±band is sized from only 9 observed daily changes and should be treated as approximate. The model is pure momentum: it will be wrong on the day a hurricane, refinery outage, or geopolitical shock hits, because it does not read the news.
+      <strong>Known limits.</strong> <span id="paramNote"></span> φ started as an inference from weekly EIA data rather than a fit on a long daily AAA series, and it is still mostly that: daily changes are small and noisy, so it takes a great deal of data to pin down. The ± band is the model's own realised forecast error, shrunk toward its prior — treat it as approximate while the case count is low. Against the Kalshi ladder the model has been quoting a distribution several times too wide, and it loses to the market on Brier score. The model is pure momentum: it will be wrong on the day a hurricane, refinery outage, or geopolitical shock hits, because it does not read the news.
     </div>
   </div>
 </section>
@@ -266,7 +266,13 @@
 <script>
 /*__DATA_START__*/
 /*__DATA_END__*/
-const PHI = 0.8709, SIGMA = 0.0103;
+/* PHI and SIGMA come from PARAMS, injected above from params.json. They used to
+   be hard-coded here as well as in model.py — two sources of truth, so
+   recalibrating the Python side would have left this page quietly forecasting
+   with the old numbers. The literals are only a fallback for a page built before
+   params.json existed. */
+const PHI   = (typeof PARAMS === "object" && PARAMS.phi)   || 0.8709;
+const SIGMA = (typeof PARAMS === "object" && PARAMS.sigma) || 0.0103;
 
 /* ================== MODEL ================== */
 function forecast(s){
@@ -367,6 +373,15 @@ $("tExact").textContent = (EXACT[1].p*100).toFixed(1)+"%";
 $("tExactNote").textContent = `lands on ${EXACT[1].value} exactly`;
 
 $("precSub").textContent = `Probabilities around the ${usd(F.p)} forecast, from the model's ±$${SIGMA.toFixed(4)} residual spread.`;
+
+/* Say plainly where today's parameters came from, so the numbers above are never
+   mistaken for something fitted on a long history. */
+$("paramNote").textContent = (typeof PARAMS === "object" && PARAMS.n_cases != null)
+  ? `Today's parameters are φ ${PHI.toFixed(4)} and σ $${SIGMA.toFixed(4)}, re-estimated from just `
+    + `${PARAMS.n_cases} usable next-day observation${PARAMS.n_cases === 1 ? "" : "s"} and shrunk toward `
+    + `their priors (φ ${PARAMS.prior_phi}, σ $${PARAMS.prior_sigma}). Fitted on that history alone φ would be `
+    + `${PARAMS.phi_direct != null ? PARAMS.phi_direct.toFixed(2) : "—"}, which is far too thin a sample to act on.`
+  : `Today's parameters are φ ${PHI.toFixed(4)} and σ $${SIGMA.toFixed(4)}, un-calibrated priors.`;
 $("precNote").innerHTML =
   `<strong style="color:var(--ink-2)">Why "exactly" is so small:</strong> AAA publishes to four decimals, so there are ~200 plausible values within one cent of the forecast. `
   + `Hitting the precise published figure is a ${(EXACT[0].p*100).toFixed(1)}% shot no matter how good the model is — that number measures AAA's precision, not the forecast's skill. `

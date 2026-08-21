@@ -6,6 +6,7 @@ plausible markup shapes (table, div grid, extra whitespace, entity-encoded, 3- v
 4-decimal prices) plus the failure cases that must NOT silently produce a number.
 """
 import re, sys, importlib
+from pathlib import Path
 import build
 
 FAILS = []
@@ -97,6 +98,16 @@ rendered = re.sub(r"/\*__DATA_START__\*/.*?/\*__DATA_END__\*/",
                   tpl, flags=re.S)
 check("substitution changes the file", rendered != tpl)
 check("no leftover placeholder", "__DATA_START__" in rendered)
+
+# The page must take PHI and SIGMA from the injected PARAMS block, not from its
+# own literals. When they were hard-coded in both places, recalibrating the
+# Python side left the published page still forecasting with the old numbers.
+check("template reads PHI/SIGMA from PARAMS", "PARAMS.phi" in tpl and "PARAMS.sigma" in tpl)
+check("template has no bare PHI/SIGMA assignment",
+      not re.search(r"const\s+PHI\s*=\s*0\.\d+\s*,\s*SIGMA", tpl))
+check("build injects PARAMS alongside SNAPSHOT",
+      "const PARAMS = " in Path(build.__file__).read_text())
+
 check("history seed is sorted & unique", (lambda r: [x["date"] for x in r] ==
       sorted({x["date"] for x in r}))(build.read_history()))
 check("history seed non-empty", len(build.read_history()) >= 19, f"{len(build.read_history())} rows")
