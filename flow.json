@@ -1,7 +1,7 @@
 {
  "target": "2026-08-23",
  "live": true,
- "built": "Aug 22, 2026 at 22:50 UTC",
+ "built": "Aug 22, 2026 at 23:40 UTC",
  "forecast": {
   "today": 4.1024,
   "yesterday": 4.1092,
@@ -40,8 +40,8 @@
    "bid": 0.99,
    "ask": 1.0,
    "last": 0.99,
-   "volume": 1026.0,
-   "open_interest": 1026.0,
+   "volume": 1029.0,
+   "open_interest": 1029.0,
    "liquid": false
   },
   {
@@ -112,14 +112,14 @@
   {
    "ticker": "KXAAAGASD-26AUG23-4.0900",
    "strike": 4.09,
-   "market_prob": 0.985,
+   "market_prob": 0.99,
    "model_prob": 0.8044741682850144,
-   "edge": -0.1805258317149856,
+   "edge": -0.1855258317149856,
    "bid": 0.98,
-   "ask": 0.99,
+   "ask": 1.0,
    "last": 0.99,
-   "volume": 12228.14,
-   "open_interest": 7870.43,
+   "volume": 13680.16,
+   "open_interest": 9135.42,
    "liquid": false
   },
   {
@@ -130,22 +130,22 @@
    "edge": -0.3279274066465957,
    "bid": 0.94,
    "ask": 0.95,
-   "last": 0.95,
-   "volume": 7479.84,
-   "open_interest": 5977.34,
+   "last": 0.94,
+   "volume": 7933.93,
+   "open_interest": 6261.19,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26AUG23-4.1000",
    "strike": 4.1,
-   "market_prob": 0.19,
+   "market_prob": 0.42,
    "model_prob": 0.3966186646186076,
-   "edge": 0.20661866461860762,
-   "bid": 0.18,
-   "ask": 0.2,
-   "last": 0.18,
-   "volume": 9524.79,
-   "open_interest": 6899.56,
+   "edge": -0.023381335381392365,
+   "bid": 0.41,
+   "ask": 0.43,
+   "last": 0.41,
+   "volume": 10114.32,
+   "open_interest": 6986.51,
    "liquid": true
   },
   {
@@ -157,8 +157,8 @@
    "bid": null,
    "ask": 0.01,
    "last": 0.01,
-   "volume": 27596.86,
-   "open_interest": 17307.28,
+   "volume": 30115.53,
+   "open_interest": 18808.28,
    "liquid": false
   },
   {
@@ -261,12 +261,48 @@
   "edge": -0.3279274066465957,
   "bid": 0.94,
   "ask": 0.95,
-  "last": 0.95,
-  "volume": 7479.84,
-  "open_interest": 5977.34,
+  "last": 0.94,
+  "volume": 7933.93,
+  "open_interest": 6261.19,
   "liquid": true
  },
  "trades": [
+  {
+   "ticker": "KXAAAGASD-26AUG23-4.1050",
+   "strike": 4.105,
+   "count": 416.76,
+   "yes_price": 0.01,
+   "side": "yes",
+   "block": false,
+   "time": "2026-08-22T23:18:48.725209Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26AUG23-4.1050",
+   "strike": 4.105,
+   "count": 1075.46,
+   "yes_price": 0.01,
+   "side": "yes",
+   "block": false,
+   "time": "2026-08-22T23:09:54.535698Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26AUG23-4.0900",
+   "strike": 4.09,
+   "count": 967.96,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-08-22T22:55:11.24186Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26AUG23-4.1050",
+   "strike": 4.105,
+   "count": 467.59,
+   "yes_price": 0.01,
+   "side": "yes",
+   "block": false,
+   "time": "2026-08-22T22:50:19.723728Z"
+  },
   {
    "ticker": "KXAAAGASD-26AUG23-4.0900",
    "strike": 4.09,
@@ -293,24 +329,6 @@
    "side": "no",
    "block": false,
    "time": "2026-08-22T21:05:59.37897Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26AUG23-4.1000",
-   "strike": 4.1,
-   "count": 338.17,
-   "yes_price": 0.07,
-   "side": "no",
-   "block": false,
-   "time": "2026-08-22T21:04:44.666639Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26AUG23-4.1000",
-   "strike": 4.1,
-   "count": 333.0,
-   "yes_price": 0.07,
-   "side": "no",
-   "block": false,
-   "time": "2026-08-22T21:04:44.666639Z"
   },
   {
    "ticker": "KXAAAGASD-26AUG23-4.1050",
@@ -608,28 +626,10 @@
    "side": "no",
    "block": false,
    "time": "2026-08-22T12:24:46.126777Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26AUG23-4.1350",
-   "strike": 4.135,
-   "count": 1000.0,
-   "yes_price": 0.01,
-   "side": "no",
-   "block": false,
-   "time": "2026-08-22T12:24:42.446717Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26AUG23-4.1100",
-   "strike": 4.11,
-   "count": 1000.0,
-   "yes_price": 0.01,
-   "side": "no",
-   "block": false,
-   "time": "2026-08-22T12:24:35.855707Z"
   }
  ],
  "trade_threshold": 313.31,
- "n_trades_scanned": 607,
+ "n_trades_scanned": 623,
  "cftc": {
   "RBOB Gasoline": {
    "report_date": "2026-08-18",
