@@ -1,7 +1,7 @@
 {
  "target": "2026-08-24",
  "live": true,
- "built": "Aug 23, 2026 at 13:45 UTC",
+ "built": "Aug 23, 2026 at 14:53 UTC",
  "forecast": {
   "today": 4.0986,
   "yesterday": 4.1024,
@@ -125,27 +125,27 @@
   {
    "ticker": "KXAAAGASD-26AUG24-4.0950",
    "strike": 4.095,
-   "market_prob": 0.89,
+   "market_prob": 0.88,
    "model_prob": 0.56360116091482,
-   "edge": -0.32639883908517997,
-   "bid": 0.55,
+   "edge": -0.31639883908517996,
+   "bid": 0.87,
    "ask": 0.89,
    "last": 0.89,
-   "volume": 78.79,
-   "open_interest": 78.79,
-   "liquid": false
+   "volume": 624.49,
+   "open_interest": 573.71,
+   "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26AUG24-4.1000",
    "strike": 4.1,
-   "market_prob": 0.23,
+   "market_prob": 0.18,
    "model_prob": 0.33897281657706513,
-   "edge": 0.10897281657706512,
+   "edge": 0.15897281657706513,
    "bid": 0.14,
-   "ask": 0.32,
-   "last": 0.32,
-   "volume": 575.41,
-   "open_interest": 575.41,
+   "ask": 0.22,
+   "last": 0.29,
+   "volume": 1287.04,
+   "open_interest": 1224.16,
    "liquid": true
   },
   {
@@ -156,9 +156,9 @@
    "edge": 0.08093018209916643,
    "bid": 0.02,
    "ask": 0.14,
-   "last": 0.08,
-   "volume": 1034.0,
-   "open_interest": 1034.0,
+   "last": 0.14,
+   "volume": 3312.85,
+   "open_interest": 3105.72,
    "liquid": true
   },
   {
@@ -248,22 +248,22 @@
    "bid": null,
    "ask": 0.01,
    "last": 0.01,
-   "volume": 2000.0,
-   "open_interest": 2000.0,
+   "volume": 2467.59,
+   "open_interest": 2015.0,
    "liquid": false
   }
  ],
  "best": {
-  "ticker": "KXAAAGASD-26AUG24-4.0900",
-  "strike": 4.09,
-  "market_prob": 0.96,
-  "model_prob": 0.7689763499649503,
-  "edge": -0.19102365003504962,
-  "bid": 0.92,
-  "ask": 1.0,
-  "last": 0.99,
-  "volume": 4123.0,
-  "open_interest": 3100.0,
+  "ticker": "KXAAAGASD-26AUG24-4.0950",
+  "strike": 4.095,
+  "market_prob": 0.88,
+  "model_prob": 0.56360116091482,
+  "edge": -0.31639883908517996,
+  "bid": 0.87,
+  "ask": 0.89,
+  "last": 0.89,
+  "volume": 624.49,
+  "open_interest": 573.71,
   "liquid": true
  },
  "trades": [
@@ -431,7 +431,7 @@
   }
  ],
  "trade_threshold": 1000.0,
- "n_trades_scanned": 83,
+ "n_trades_scanned": 152,
  "cftc": {
   "RBOB Gasoline": {
    "report_date": "2026-08-18",
