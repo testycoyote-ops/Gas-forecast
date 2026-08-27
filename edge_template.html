@@ -222,7 +222,7 @@ const rows = (FLOW.rows||[]).filter(r=>r.market_prob!=null);
     $("edgeSub").innerHTML = FLOW.live
       ? `Every strike is pinned near 1¢ or 99¢, or too thin to quote. There is nothing here worth calling an edge.`
       : `This session has settled, so every strike sits at 0 or 1. The ladder below is the final state; a live comparison returns when the next day's market opens.`;
-    $("vsBlock").innerHTML = `<div class="vsi"><div class="vl">Forecast</div><div class="vv">$${FLOW.forecast.pred_price.toFixed(3)}</div></div>`;
+    $("vsBlock").innerHTML = `<div class="vsi"><div class="vl">Forecast</div><div class="vv">${usd(FLOW.forecast.pred_price)}</div></div>`;
     $("edgeCaveat").innerHTML = `<b>Why no number?</b> A settled or untraded strike still shows a price, but it reflects an empty order book rather than anyone's opinion. Publishing a "divergence" from that would be inventing a signal out of stale quotes.`;
     $("curveSub").textContent = `Target: ${fmtLong(FLOW.target)}. Model centred on $${FLOW.forecast.pred_price.toFixed(4)} with σ $${FLOW.forecast.sigma}.`;
     return;
@@ -236,7 +236,7 @@ const rows = (FLOW.rows||[]).filter(r=>r.market_prob!=null);
   $("vsBlock").innerHTML =
     `<div class="vsi"><div class="vl"><span class="dot" style="background:var(--model)"></span>Model</div><div class="vv">${pct1(best.model_prob)}</div></div>
      <div class="vsi"><div class="vl"><span class="dot" style="background:var(--market)"></span>Market</div><div class="vv">${cts(best.market_prob)}</div></div>
-     <div class="vsi"><div class="vl">Forecast</div><div class="vv">$${FLOW.forecast.pred_price.toFixed(3)}</div></div>`;
+     <div class="vsi"><div class="vl">Forecast</div><div class="vv">${usd(FLOW.forecast.pred_price)}</div></div>`;
   $("edgeCaveat").innerHTML =
     `<b>Read this before acting on it.</b> A large gap usually means the model's uncertainty band is wrong, `
     + `not that the market is. The model's σ is $${FLOW.forecast.sigma} — estimated from a handful of daily observations — `
