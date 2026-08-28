@@ -239,12 +239,12 @@
   <div class="prose">
     <p>The AAA national average is a survey of ~120,000 stations, so it is heavily smoothed and moves in <strong>runs</strong> rather than jumps. That makes today's move the single best predictor of tomorrow's move:</p>
     <p style="text-align:center;font-size:15px;color:var(--ink);margin:16px 0">
-      <code>change<sub>tomorrow</sub> = drift + 0.871 × (change<sub>today</sub> − drift)</code>
+      <code>change<sub>tomorrow</sub> = drift + <span id="eqPhi">0.871</span> × (change<sub>today</sub> − drift)</code>
     </p>
-    <p>where <em>drift</em> is the average daily change over the past week. In plain terms: <strong>tomorrow repeats about 87% of today's move</strong>, pulled slightly back toward the week's pace.</p>
+    <p>where <em>drift</em> is the average daily change over the past week. In plain terms: <strong>tomorrow repeats about <span id="eqPct">87</span>% of today's move</strong>, pulled slightly back toward the week's pace.</p>
 
     <div class="stats">
-      <div class="stat"><div class="sv">0.871</div><div class="sl">daily persistence (φ)</div></div>
+      <div class="stat"><div class="sv" id="svPhi">0.871</div><div class="sl">daily persistence (φ)</div></div>
       <div class="stat"><div class="sv">1,862</div><div class="sl">weeks of data behind it</div></div>
       <div class="stat"><div class="sv">17.8%</div><div class="sl">MAE better than no-change*</div></div>
       <div class="stat"><div class="sv">68.6%</div><div class="sl">direction hit rate*</div></div>
@@ -266,35 +266,35 @@
 <script>
 /*__DATA_START__*/
 const SNAPSHOT = {
-  "asOf": "2026-08-26",
-  "today": 4.1014,
-  "yesterday": 4.0969,
-  "weekAgo": 4.086,
-  "monthAgo": 4.1101,
-  "yearAgo": 3.1864,
+  "asOf": "2026-08-27",
+  "today": 4.0997,
+  "yesterday": 4.1014,
+  "weekAgo": 4.1044,
+  "monthAgo": 4.1097,
+  "yearAgo": 3.2081,
   "wholesale": {
-    "asOf": "8/25/26",
-    "wti": 83.9,
-    "brent": 88.24,
+    "asOf": "8/26/26",
+    "wti": 83.46,
+    "brent": 87.77,
     "rbobNYH": null
   }
 };
-const HISTORY = [["2026-06-18", 3.999], ["2026-06-19", 3.973], ["2026-06-20", 3.951], ["2026-06-21", 3.938], ["2026-06-23", 3.926], ["2026-06-24", 3.928], ["2026-06-25", 3.918], ["2026-06-26", 3.901], ["2026-06-27", 3.878], ["2026-06-28", 3.867], ["2026-06-29", 3.86], ["2026-07-09", 3.846], ["2026-07-10", 3.884], ["2026-07-12", 3.876], ["2026-07-13", 3.872], ["2026-07-19", 3.9975], ["2026-08-12", 4.036], ["2026-08-18", 4.0654], ["2026-08-19", 4.086], ["2026-08-20", 4.1044], ["2026-08-21", 4.1092], ["2026-08-22", 4.1024], ["2026-08-23", 4.0986], ["2026-08-24", 4.0991], ["2026-08-25", 4.0969], ["2026-08-26", 4.1014]];
+const HISTORY = [["2026-06-18", 3.999], ["2026-06-19", 3.973], ["2026-06-20", 3.951], ["2026-06-21", 3.938], ["2026-06-23", 3.926], ["2026-06-24", 3.928], ["2026-06-25", 3.918], ["2026-06-26", 3.901], ["2026-06-27", 3.878], ["2026-06-28", 3.867], ["2026-06-29", 3.86], ["2026-07-09", 3.846], ["2026-07-10", 3.884], ["2026-07-12", 3.876], ["2026-07-13", 3.872], ["2026-07-19", 3.9975], ["2026-08-12", 4.036], ["2026-08-18", 4.0654], ["2026-08-19", 4.086], ["2026-08-20", 4.1044], ["2026-08-21", 4.1092], ["2026-08-22", 4.1024], ["2026-08-23", 4.0986], ["2026-08-24", 4.0991], ["2026-08-25", 4.0969], ["2026-08-26", 4.1014], ["2026-08-27", 4.0997]];
 const PARAMS = {
-  "phi": 0.7969,
-  "sigma": 0.00817,
-  "n_cases": 14,
-  "phi_direct": 0.5693,
-  "phi_direct_se": 0.1402,
-  "phi_post_sd": 0.0695,
-  "resid_rmse": 0.00666,
+  "phi": 0.7939,
+  "sigma": 0.00807,
+  "n_cases": 15,
+  "phi_direct": 0.5634,
+  "phi_direct_se": 0.1384,
+  "phi_post_sd": 0.0693,
+  "resid_rmse": 0.00658,
   "prior_phi": 0.871,
   "prior_sigma": 0.0103,
-  "last_case": "2026-08-25",
-  "updated": "2026-08-26T14:07:38Z",
+  "last_case": "2026-08-26",
+  "updated": "2026-08-28T01:10:56Z",
   "source": "calibrated"
 };
-const BUILT = "Aug 26, 2026 at 14:07 UTC";
+const BUILT = "Aug 28, 2026 at 01:10 UTC";
 /*__DATA_END__*/
 /* PHI and SIGMA come from PARAMS, injected above from params.json. They used to
    be hard-coded here as well as in model.py — two sources of truth, so
@@ -322,7 +322,10 @@ const F = forecast(SNAPSHOT);
 
 /* ================== FORMATTING ================== */
 const $ = id=>document.getElementById(id);
-const usd = v=>"$"+v.toFixed(3);
+/* AAA publishes four decimals and the model computes on the un-rounded figure, so
+   the page shows four too -- displaying $4.099 for an input of 4.0991 hid a tenth
+   of a cent and read inconsistently against the 4-decimal P(exact) table below. */
+const usd = v=>"$"+v.toFixed(4);
 const cents = v=>(v>=0?"+":"−")+Math.abs(v*100).toFixed(1)+"¢";
 const D = s=>{const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d));};
 const addDay = s=>{const t=D(s);t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10);};
@@ -356,7 +359,15 @@ $("tProb").textContent = Math.round(F.pUp*100)+"%";
     ? ` Wholesale context${w.asOf?` (${w.asOf} close)`:""}: ${bits.join(" · ")}.`
     : "");
 })();
-$("stamp").textContent = "Model: AR(1) on daily changes, φ=0.871 · rebuilt "+BUILT;
+$("stamp").textContent = `Model: AR(1) on daily changes, φ=${PHI.toFixed(4)} · rebuilt ${BUILT}`;
+
+/* The explainer used to hard-code 0.871 in the equation and the stat tile, which is the
+   PRIOR, not the coefficient the page is actually using. Bind them to the live PHI so
+   there is one source of truth. The footnote below them keeps 0.871 on purpose -- it
+   describes where the prior came from, not what today's forecast ran on. */
+$("eqPhi").textContent = PHI.toFixed(4);
+$("eqPct").textContent = Math.round(PHI*100);
+$("svPhi").textContent = PHI.toFixed(4);
 
 /* Stale-data banner: if the newest AAA figure is more than a day behind, say so loudly
    rather than quietly presenting an old forecast as today's. */
@@ -386,7 +397,7 @@ const EXACT = [4,3,2].map(d=>{
           value:"$"+v.toFixed(d), p:bandP(v-step/2, v+step/2)};
 });
 const NEAR = [[0.005,"½¢ either way"],[0.01,"1¢ either way"],[0.02,"2¢ either way"]].map(([t,l])=>(
-  {label:l, value:`$${(F.p-t).toFixed(3)} – $${(F.p+t).toFixed(3)}`, p:bandP(F.p-t,F.p+t)}));
+  {label:l, value:`$${(F.p-t).toFixed(4)} – $${(F.p+t).toFixed(4)}`, p:bandP(F.p-t,F.p+t)}));
 
 function rows(host, arr, color){
   host.innerHTML = arr.map(r=>
