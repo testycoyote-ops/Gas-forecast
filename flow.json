@@ -1,7 +1,7 @@
 {
  "target": "2026-09-02",
  "live": true,
- "built": "Sep 1, 2026 at 21:01 UTC",
+ "built": "Sep 1, 2026 at 21:33 UTC",
  "forecast": {
   "today": 4.0954,
   "yesterday": 4.0807,
@@ -144,73 +144,73 @@
    "bid": 0.99,
    "ask": 1.0,
    "last": 0.99,
-   "volume": 9768.04,
+   "volume": 9788.61,
    "open_interest": 6347.07,
    "liquid": false
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1000",
    "strike": 4.1,
-   "market_prob": 0.965,
+   "market_prob": 0.995,
    "model_prob": 0.815756036915807,
-   "edge": -0.14924396308419297,
-   "bid": 0.95,
-   "ask": 0.98,
-   "last": 0.95,
-   "volume": 5020.15,
-   "open_interest": 3680.3,
-   "liquid": true
+   "edge": -0.179243963084193,
+   "bid": 0.99,
+   "ask": 1.0,
+   "last": 0.99,
+   "volume": 8595.28,
+   "open_interest": 7043.3,
+   "liquid": false
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1050",
    "strike": 4.105,
-   "market_prob": 0.945,
+   "market_prob": 0.955,
    "model_prob": 0.6095672451826684,
-   "edge": -0.3354327548173316,
-   "bid": 0.94,
-   "ask": 0.95,
-   "last": 0.94,
-   "volume": 6237.27,
-   "open_interest": 4546.88,
+   "edge": -0.3454327548173316,
+   "bid": 0.95,
+   "ask": 0.96,
+   "last": 0.95,
+   "volume": 6666.51,
+   "open_interest": 4888.88,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1100",
    "strike": 4.11,
-   "market_prob": 0.845,
+   "market_prob": 0.865,
    "model_prob": 0.36582679929888284,
-   "edge": -0.47917320070111713,
-   "bid": 0.84,
-   "ask": 0.85,
-   "last": 0.81,
-   "volume": 6652.13,
-   "open_interest": 3588.73,
+   "edge": -0.49917320070111715,
+   "bid": 0.86,
+   "ask": 0.87,
+   "last": 0.87,
+   "volume": 7474.16,
+   "open_interest": 4279.26,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1150",
    "strike": 4.115,
-   "market_prob": 0.655,
+   "market_prob": 0.6599999999999999,
    "model_prob": 0.167511752738579,
-   "edge": -0.48748824726142104,
-   "bid": 0.65,
-   "ask": 0.66,
-   "last": 0.65,
-   "volume": 7830.57,
-   "open_interest": 3802.15,
+   "edge": -0.49248824726142093,
+   "bid": 0.63,
+   "ask": 0.69,
+   "last": 0.64,
+   "volume": 8862.69,
+   "open_interest": 4446.18,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1200",
    "strike": 4.12,
-   "market_prob": 0.315,
+   "market_prob": 0.42,
    "model_prob": 0.05646468267522087,
-   "edge": -0.25853531732477913,
-   "bid": 0.31,
-   "ask": 0.32,
-   "last": 0.32,
-   "volume": 6926.26,
-   "open_interest": 3525.54,
+   "edge": -0.3635353173247791,
+   "bid": 0.41,
+   "ask": 0.43,
+   "last": 0.43,
+   "volume": 7607.17,
+   "open_interest": 3944.65,
    "liquid": true
   },
   {
@@ -221,9 +221,9 @@
    "edge": -0.08131782565343418,
    "bid": 0.09,
    "ask": 0.1,
-   "last": 0.1,
-   "volume": 12147.31,
-   "open_interest": 8036.48,
+   "last": 0.09,
+   "volume": 13258.11,
+   "open_interest": 8617.28,
    "liquid": true
   },
   {
@@ -234,39 +234,255 @@
    "edge": -0.08265360741517538,
    "bid": 0.08,
    "ask": 0.09,
-   "last": 0.09,
-   "volume": 23812.82,
-   "open_interest": 13490.42,
+   "last": 0.1,
+   "volume": 25292.59,
+   "open_interest": 14412.3,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1350",
    "strike": 4.135,
-   "market_prob": 0.045,
+   "market_prob": 0.025,
    "model_prob": 0.00028183723297647845,
-   "edge": -0.04471816276702352,
-   "bid": 0.04,
-   "ask": 0.05,
-   "last": 0.05,
-   "volume": 30706.43,
-   "open_interest": 17241.66,
+   "edge": -0.024718162767023523,
+   "bid": 0.02,
+   "ask": 0.03,
+   "last": 0.03,
+   "volume": 33222.64,
+   "open_interest": 16972.62,
    "liquid": true
   }
  ],
  "best": {
-  "ticker": "KXAAAGASD-26SEP02-4.1150",
-  "strike": 4.115,
-  "market_prob": 0.655,
-  "model_prob": 0.167511752738579,
-  "edge": -0.48748824726142104,
-  "bid": 0.65,
-  "ask": 0.66,
-  "last": 0.65,
-  "volume": 7830.57,
-  "open_interest": 3802.15,
+  "ticker": "KXAAAGASD-26SEP02-4.1100",
+  "strike": 4.11,
+  "market_prob": 0.865,
+  "model_prob": 0.36582679929888284,
+  "edge": -0.49917320070111715,
+  "bid": 0.86,
+  "ask": 0.87,
+  "last": 0.87,
+  "volume": 7474.16,
+  "open_interest": 4279.26,
   "liquid": true
  },
  "trades": [
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 100.0,
+   "yes_price": 0.03,
+   "side": "no",
+   "block": false,
+   "time": "2026-09-01T21:32:35.373086Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1250",
+   "strike": 4.125,
+   "count": 152.94,
+   "yes_price": 0.09,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:32:20.806286Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1150",
+   "strike": 4.115,
+   "count": 100.0,
+   "yes_price": 0.68,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:30:43.207731Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1050",
+   "strike": 4.105,
+   "count": 197.0,
+   "yes_price": 0.95,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:30:08.274133Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1100",
+   "strike": 4.11,
+   "count": 150.0,
+   "yes_price": 0.87,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:30:04.698495Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1100",
+   "strike": 4.11,
+   "count": 157.52,
+   "yes_price": 0.86,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:30:04.698495Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1250",
+   "strike": 4.125,
+   "count": 100.0,
+   "yes_price": 0.07,
+   "side": "no",
+   "block": false,
+   "time": "2026-09-01T21:21:56.463441Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1200",
+   "strike": 4.12,
+   "count": 182.11,
+   "yes_price": 0.32,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:19:47.491795Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1100",
+   "strike": 4.11,
+   "count": 183.0,
+   "yes_price": 0.84,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:19:04.190504Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1150",
+   "strike": 4.115,
+   "count": 133.0,
+   "yes_price": 0.61,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:18:55.942348Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1150",
+   "strike": 4.115,
+   "count": 450.0,
+   "yes_price": 0.58,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:18:55.942348Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 100.0,
+   "yes_price": 0.03,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:17:26.023145Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1300",
+   "strike": 4.13,
+   "count": 100.0,
+   "yes_price": 0.09,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:04:20.492627Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 110.0,
+   "yes_price": 0.04,
+   "side": "no",
+   "block": false,
+   "time": "2026-09-01T21:04:12.220723Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 300.0,
+   "yes_price": 0.04,
+   "side": "no",
+   "block": false,
+   "time": "2026-09-01T21:04:12.220723Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 238.0,
+   "yes_price": 0.02,
+   "side": "no",
+   "block": false,
+   "time": "2026-09-01T21:04:12.220723Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 1000.0,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 693.0,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 200.0,
+   "yes_price": 0.98,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 500.0,
+   "yes_price": 0.98,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 500.0,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 444.0,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1000",
+   "strike": 4.1,
+   "count": 162.13,
+   "yes_price": 0.99,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:03:40.020962Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP02-4.1350",
+   "strike": 4.135,
+   "count": 1010.0,
+   "yes_price": 0.05,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-01T21:01:49.534754Z"
+  },
   {
    "ticker": "KXAAAGASD-26SEP02-4.1350",
    "strike": 4.135,
@@ -410,226 +626,10 @@
    "side": "yes",
    "block": false,
    "time": "2026-09-01T20:30:25.984179Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1300",
-   "strike": 4.13,
-   "count": 100.0,
-   "yes_price": 0.07,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:24:30.739617Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1300",
-   "strike": 4.13,
-   "count": 100.0,
-   "yes_price": 0.09,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:22:47.929231Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1300",
-   "strike": 4.13,
-   "count": 117.12,
-   "yes_price": 0.12,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:22:47.644613Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 555.0,
-   "yes_price": 0.9,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:22:39.265477Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 100.0,
-   "yes_price": 0.9,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:22:39.265477Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1200",
-   "strike": 4.12,
-   "count": 100.0,
-   "yes_price": 0.16,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:21:39.519666Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1150",
-   "strike": 4.115,
-   "count": 100.0,
-   "yes_price": 0.45,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:20:45.371241Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1150",
-   "strike": 4.115,
-   "count": 146.3,
-   "yes_price": 0.4,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:20:45.371241Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 374.0,
-   "yes_price": 0.88,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:20:25.679762Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 100.0,
-   "yes_price": 0.84,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:20:25.679762Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 125.0,
-   "yes_price": 0.88,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:20:25.679762Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 100.0,
-   "yes_price": 0.86,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:19:48.315975Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1050",
-   "strike": 4.105,
-   "count": 100.0,
-   "yes_price": 0.86,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:19:27.712595Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1100",
-   "strike": 4.11,
-   "count": 276.56,
-   "yes_price": 0.66,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:18:22.012872Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1350",
-   "strike": 4.135,
-   "count": 102.29,
-   "yes_price": 0.04,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:18:09.208436Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1350",
-   "strike": 4.135,
-   "count": 109.74,
-   "yes_price": 0.04,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:17:05.294801Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1100",
-   "strike": 4.11,
-   "count": 168.53,
-   "yes_price": 0.63,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:16:52.008033Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.0950",
-   "strike": 4.095,
-   "count": 100.0,
-   "yes_price": 0.99,
-   "side": "no",
-   "block": false,
-   "time": "2026-09-01T20:13:24.074402Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1100",
-   "strike": 4.11,
-   "count": 100.0,
-   "yes_price": 0.6,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:13:03.046169Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1300",
-   "strike": 4.13,
-   "count": 107.0,
-   "yes_price": 0.02,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:11:12.779636Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1300",
-   "strike": 4.13,
-   "count": 516.05,
-   "yes_price": 0.02,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:11:12.779636Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1350",
-   "strike": 4.135,
-   "count": 312.13,
-   "yes_price": 0.03,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:10:19.380826Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1350",
-   "strike": 4.135,
-   "count": 259.06,
-   "yes_price": 0.02,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:09:45.745332Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP02-4.1350",
-   "strike": 4.135,
-   "count": 680.0,
-   "yes_price": 0.02,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-01T20:09:45.745332Z"
   }
  ],
  "trade_threshold": 100.0,
- "n_trades_scanned": 1687,
+ "n_trades_scanned": 1734,
  "cftc": {
   "RBOB Gasoline": {
    "report_date": "2026-08-25",
