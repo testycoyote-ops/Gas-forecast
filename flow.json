@@ -1,7 +1,7 @@
 {
  "target": "2026-09-12",
  "live": true,
- "built": "Sep 12, 2026 at 01:32 UTC",
+ "built": "Sep 12, 2026 at 02:01 UTC",
  "forecast": {
   "today": 4.295,
   "yesterday": 4.277,
@@ -40,8 +40,8 @@
    "bid": 0.99,
    "ask": 1.0,
    "last": 0.99,
-   "volume": 1749.12,
-   "open_interest": 1749.12,
+   "volume": 1842.63,
+   "open_interest": 1842.63,
    "liquid": false
   },
   {
@@ -151,27 +151,27 @@
   {
    "ticker": "KXAAAGASD-26SEP12-4.3000",
    "strike": 4.3,
-   "market_prob": 0.98,
+   "market_prob": 0.985,
    "model_prob": 0.8229737703679812,
-   "edge": -0.15702622963201873,
-   "bid": 0.97,
+   "edge": -0.16202622963201874,
+   "bid": 0.98,
    "ask": 0.99,
    "last": 0.99,
-   "volume": 22379.24,
-   "open_interest": 16641.67,
-   "liquid": true
+   "volume": 22713.24,
+   "open_interest": 16975.67,
+   "liquid": false
   },
   {
    "ticker": "KXAAAGASD-26SEP12-4.3050",
    "strike": 4.305,
-   "market_prob": 0.84,
+   "market_prob": 0.83,
    "model_prob": 0.7211153413400534,
-   "edge": -0.11888465865994657,
-   "bid": 0.83,
-   "ask": 0.85,
+   "edge": -0.10888465865994656,
+   "bid": 0.82,
+   "ask": 0.84,
    "last": 0.81,
-   "volume": 16520.6,
-   "open_interest": 10101.65,
+   "volume": 16935.76,
+   "open_interest": 10323.12,
    "liquid": true
   },
   {
@@ -182,35 +182,35 @@
    "edge": 0.17198802323872386,
    "bid": 0.39,
    "ask": 0.46,
-   "last": 0.41,
-   "volume": 20557.58,
-   "open_interest": 9204.12,
+   "last": 0.46,
+   "volume": 20885.18,
+   "open_interest": 9416.24,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP12-4.3150",
    "strike": 4.315,
-   "market_prob": 0.11000000000000001,
+   "market_prob": 0.16,
    "model_prob": 0.4621411813625269,
-   "edge": 0.3521411813625269,
-   "bid": 0.08,
-   "ask": 0.14,
-   "last": 0.09,
-   "volume": 18597.41,
-   "open_interest": 8931.45,
+   "edge": 0.3021411813625269,
+   "bid": 0.11,
+   "ask": 0.21,
+   "last": 0.2,
+   "volume": 19154.97,
+   "open_interest": 9159.99,
    "liquid": true
   },
   {
    "ticker": "KXAAAGASD-26SEP12-4.3200",
    "strike": 4.32,
-   "market_prob": 0.035,
+   "market_prob": 0.034999999999999996,
    "model_prob": 0.3315488535604041,
-   "edge": 0.29654885356040406,
-   "bid": 0.02,
-   "ask": 0.05,
-   "last": 0.01,
-   "volume": 19165.56,
-   "open_interest": 12241.99,
+   "edge": 0.2965488535604041,
+   "bid": 0.01,
+   "ask": 0.06,
+   "last": 0.06,
+   "volume": 21256.36,
+   "open_interest": 14042.23,
    "liquid": true
   },
   {
@@ -220,10 +220,10 @@
    "model_prob": 0.21880371051279413,
    "edge": 0.20880371051279412,
    "bid": null,
-   "ask": 0.03,
+   "ask": 0.02,
    "last": 0.01,
-   "volume": 9929.67,
-   "open_interest": 5460.45,
+   "volume": 11341.45,
+   "open_interest": 6754.64,
    "liquid": false
   },
   {
@@ -235,8 +235,8 @@
    "bid": null,
    "ask": 0.01,
    "last": 0.01,
-   "volume": 8301.49,
-   "open_interest": 5929.49,
+   "volume": 8432.41,
+   "open_interest": 6060.41,
    "liquid": false
   },
   {
@@ -256,17 +256,62 @@
  "best": {
   "ticker": "KXAAAGASD-26SEP12-4.3150",
   "strike": 4.315,
-  "market_prob": 0.11000000000000001,
+  "market_prob": 0.16,
   "model_prob": 0.4621411813625269,
-  "edge": 0.3521411813625269,
-  "bid": 0.08,
-  "ask": 0.14,
-  "last": 0.09,
-  "volume": 18597.41,
-  "open_interest": 8931.45,
+  "edge": 0.3021411813625269,
+  "bid": 0.11,
+  "ask": 0.21,
+  "last": 0.2,
+  "volume": 19154.97,
+  "open_interest": 9159.99,
   "liquid": true
  },
  "trades": [
+  {
+   "ticker": "KXAAAGASD-26SEP12-4.3200",
+   "strike": 4.32,
+   "count": 928.0,
+   "yes_price": 0.04,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-12T01:56:28.684237Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP12-4.3250",
+   "strike": 4.325,
+   "count": 233.95,
+   "yes_price": 0.02,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-12T01:44:27.977955Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP12-4.3250",
+   "strike": 4.325,
+   "count": 467.9,
+   "yes_price": 0.02,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-12T01:40:19.08398Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP12-4.3250",
+   "strike": 4.325,
+   "count": 350.0,
+   "yes_price": 0.01,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-12T01:38:04.266047Z"
+  },
+  {
+   "ticker": "KXAAAGASD-26SEP12-4.3200",
+   "strike": 4.32,
+   "count": 198.87,
+   "yes_price": 0.02,
+   "side": "yes",
+   "block": false,
+   "time": "2026-09-12T01:37:40.456116Z"
+  },
   {
    "ticker": "KXAAAGASD-26SEP12-4.3100",
    "strike": 4.31,
@@ -394,15 +439,6 @@
    "time": "2026-09-12T00:08:34.84842Z"
   },
   {
-   "ticker": "KXAAAGASD-26SEP12-4.3100",
-   "strike": 4.31,
-   "count": 286.05,
-   "yes_price": 0.46,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-12T00:07:23.936145Z"
-  },
-  {
    "ticker": "KXAAAGASD-26SEP12-4.3050",
    "strike": 4.305,
    "count": 317.19,
@@ -410,15 +446,6 @@
    "side": "yes",
    "block": false,
    "time": "2026-09-11T23:56:36.560234Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP12-4.3100",
-   "strike": 4.31,
-   "count": 200.0,
-   "yes_price": 0.46,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-11T23:56:20.56259Z"
   },
   {
    "ticker": "KXAAAGASD-26SEP12-4.3050",
@@ -599,37 +626,10 @@
    "side": "yes",
    "block": false,
    "time": "2026-09-11T21:16:52.614242Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP12-4.3000",
-   "strike": 4.3,
-   "count": 179.84,
-   "yes_price": 0.93,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-11T21:10:18.201525Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP12-4.3250",
-   "strike": 4.325,
-   "count": 725.0,
-   "yes_price": 0.01,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-11T20:56:18.124622Z"
-  },
-  {
-   "ticker": "KXAAAGASD-26SEP12-4.2950",
-   "strike": 4.295,
-   "count": 226.2,
-   "yes_price": 0.99,
-   "side": "yes",
-   "block": false,
-   "time": "2026-09-11T20:38:50.870326Z"
   }
  ],
- "trade_threshold": 175.0,
- "n_trades_scanned": 1464,
+ "trade_threshold": 177.0,
+ "n_trades_scanned": 1473,
  "cftc": {
   "RBOB Gasoline": {
    "report_date": "2026-09-08",
