@@ -1,13 +1,13 @@
 {
- "phi": 0.7856,
- "sigma": 0.01401,
- "n_cases": 58,
- "phi_direct": 0.6059,
- "phi_direct_se": 0.1161,
- "phi_post_sd": 0.0659,
- "resid_rmse": 0.01445,
+ "phi": 0.7813,
+ "sigma": 0.01398,
+ "n_cases": 59,
+ "phi_direct": 0.5967,
+ "phi_direct_se": 0.1148,
+ "phi_post_sd": 0.0656,
+ "resid_rmse": 0.01441,
  "prior_phi": 0.871,
  "prior_sigma": 0.0103,
- "last_case": "2026-10-08",
- "updated": "2026-10-09T20:55:25Z"
+ "last_case": "2026-10-09",
+ "updated": "2026-10-10T16:14:20Z"
 }
